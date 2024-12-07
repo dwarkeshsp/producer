@@ -4,14 +4,11 @@ import pandas as pd
 from typing import Tuple, Dict
 from youtube_transcript_api import YouTubeTranscriptApi
 import re
-import json
-from pathlib import Path
 
-# Initialize Anthropic client and settings
+# Initialize Anthropic client
 client = anthropic.Anthropic()
-PROMPTS_FILE = Path("prompts.json")
 
-# Default prompts
+# Default prompts that we can experiment with
 DEFAULT_PROMPTS = {
     "clips": """You are a social media expert for the Dwarkesh Podcast. Generate 10 viral-worthy clips from the transcript.
 Format as:
@@ -48,23 +45,8 @@ Previous examples:
 {titles_and_thumbnails_examples}""",
 }
 
-
-def load_prompts() -> Dict[str, str]:
-    """Load prompts from file or return defaults."""
-    if PROMPTS_FILE.exists():
-        with open(PROMPTS_FILE, "r") as f:
-            return json.load(f)
-    return DEFAULT_PROMPTS
-
-
-def save_prompts(prompts: Dict[str, str]) -> str:
-    """Save prompts to file."""
-    try:
-        with open(PROMPTS_FILE, "w") as f:
-            json.dump(prompts, f, indent=2)
-        return f"Prompts saved to: {PROMPTS_FILE.absolute()}"
-    except Exception as e:
-        return f"Error saving prompts: {str(e)}"
+# Current prompts used in the session
+current_prompts = DEFAULT_PROMPTS.copy()
 
 
 def load_examples(filename: str, columns: list) -> str:
@@ -101,12 +83,11 @@ def generate_content(
         ),
     }
 
-    prompts = load_prompts()
     message = client.messages.create(
         model="claude-3-5-sonnet-20241022",
         max_tokens=max_tokens,
         temperature=temp,
-        system=prompts[prompt_key].format(
+        system=current_prompts[prompt_key].format(
             **{f"{prompt_key}_examples": examples[prompt_key]}
         ),
         messages=[
@@ -161,6 +142,20 @@ def process_transcript(input_text: str) -> Tuple[str, str, str, str]:
         return (error_msg,) * 4
 
 
+def update_prompts(*values) -> str:
+    """Update the current session's prompts."""
+    global current_prompts
+    current_prompts = {
+        "clips": values[0],
+        "description": values[1],
+        "timestamps": values[2],
+        "titles_and_thumbnails": values[3],
+    }
+    return (
+        "Prompts updated for this session! Changes will reset when you reload the page."
+    )
+
+
 def create_interface():
     """Create the Gradio interface."""
     with gr.Blocks(title="Podcast Transcript Analyzer") as app:
@@ -182,56 +177,50 @@ def create_interface():
                 fn=process_transcript, inputs=[input_text], outputs=outputs
             )
 
-        with gr.Tab("Configure Prompts"):
-            gr.Markdown("# Edit Prompts")
-            gr.Markdown(f"Prompts are saved to: `{PROMPTS_FILE.absolute()}`")
+        with gr.Tab("Experiment with Prompts"):
+            gr.Markdown("# Experiment with Prompts")
+            gr.Markdown(
+                """
+            Here you can experiment with different prompts during your session. 
+            Changes will remain active until you reload the page.
+            
+            Tip: Copy your preferred prompts somewhere safe if you want to reuse them later!
+            """
+            )
 
-            prompts = load_prompts()
             prompt_inputs = [
                 gr.Textbox(
-                    label="Clips Prompt",
-                    lines=10,
-                    value=prompts["clips"],
-                    interactive=True,
+                    label="Clips Prompt", lines=10, value=DEFAULT_PROMPTS["clips"]
                 ),
                 gr.Textbox(
                     label="Description Prompt",
                     lines=10,
-                    value=prompts["description"],
-                    interactive=True,
+                    value=DEFAULT_PROMPTS["description"],
                 ),
                 gr.Textbox(
                     label="Timestamps Prompt",
                     lines=10,
-                    value=prompts["timestamps"],
-                    interactive=True,
+                    value=DEFAULT_PROMPTS["timestamps"],
                 ),
                 gr.Textbox(
                     label="Titles & Thumbnails Prompt",
                     lines=10,
-                    value=prompts["titles_and_thumbnails"],
-                    interactive=True,
+                    value=DEFAULT_PROMPTS["titles_and_thumbnails"],
                 ),
             ]
             status = gr.Textbox(label="Status", interactive=False)
 
-            def save_prompts_callback(*values):
-                new_prompts = {
-                    "clips": values[0],
-                    "description": values[1],
-                    "timestamps": values[2],
-                    "titles_and_thumbnails": values[3],
-                }
-                return save_prompts(new_prompts)
-
+            # Update prompts when they change
             for prompt in prompt_inputs:
-                prompt.change(
-                    fn=save_prompts_callback, inputs=prompt_inputs, outputs=[status]
-                )
+                prompt.change(fn=update_prompts, inputs=prompt_inputs, outputs=[status])
 
+            # Reset button
             reset_btn = gr.Button("Reset to Default Prompts")
             reset_btn.click(
-                fn=lambda: (save_prompts(DEFAULT_PROMPTS), *DEFAULT_PROMPTS.values()),
+                fn=lambda: (
+                    update_prompts(*DEFAULT_PROMPTS.values()),
+                    *DEFAULT_PROMPTS.values(),
+                ),
                 outputs=[status] + prompt_inputs,
             )
 
