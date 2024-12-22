@@ -1,40 +1,34 @@
 import gradio as gr
-from deepgram import DeepgramClient, PrerecordedOptions
+import assemblyai as aai
 from google import generativeai
 import os
 from pydub import AudioSegment
 
 # Initialize API clients
-DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY")
+ASSEMBLYAI_API_KEY = os.getenv("ASSEMBLYAI_API_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-dg_client = DeepgramClient(DEEPGRAM_API_KEY)
+aai.settings.api_key = ASSEMBLYAI_API_KEY
 generativeai.configure(api_key=GOOGLE_API_KEY)
 model = generativeai.GenerativeModel("gemini-exp-1206")
 
 
 def format_timestamp(seconds):
     """Convert seconds to HH:MM:SS format"""
-    h = int(float(seconds)) // 3600
-    m = (int(float(seconds)) % 3600) // 60
-    s = int(float(seconds)) % 60
+    h = int(seconds) // 3600
+    m = (int(seconds) % 3600) // 60
+    s = int(seconds) % 60
     return f"{h:02d}:{m:02d}:{s:02d}"
 
 
 def get_transcript(audio_path):
-    """Get transcript from Deepgram with speaker diarization"""
-    with open(audio_path, "rb") as audio:
-        options = PrerecordedOptions(
-            smart_format=True,
-            diarize=True,
-            utterances=True,
-            model="nova-2",
-            language="en-US",
-        )
-        response = dg_client.listen.rest.v("1").transcribe_file(
-            {"buffer": audio, "mimetype": "audio/mp3"}, options
-        )
-        return response.results.utterances
+    """Get transcript from AssemblyAI with speaker diarization"""
+    config = aai.TranscriptionConfig(speaker_labels=True, language_code="en")
+
+    transcriber = aai.Transcriber()
+    transcript = transcriber.transcribe(audio_path, config=config)
+
+    return transcript.utterances
 
 
 def format_transcript(utterances):
@@ -49,9 +43,9 @@ def format_transcript(utterances):
         if current_speaker != utterance.speaker:
             # Write out the previous section if it exists
             if current_text:
-                timestamp = format_timestamp(current_start)
-                # Add double line break after speaker/timestamp
-                section = f"Speaker {current_speaker + 1} {timestamp}\n\n{' '.join(current_text).strip()}"
+                # Convert milliseconds to seconds for timestamp
+                timestamp = format_timestamp(float(current_start) / 1000)
+                section = f"Speaker {current_speaker} {timestamp}\n\n{' '.join(current_text).strip()}"
                 formatted_sections.append(section)
                 current_text = []
 
@@ -59,12 +53,15 @@ def format_transcript(utterances):
             current_speaker = utterance.speaker
             current_start = utterance.start
 
-        current_text.append(utterance.transcript.strip())
+        current_text.append(utterance.text.strip())
 
     # Add the final section
     if current_text:
-        timestamp = format_timestamp(current_start)
-        section = f"Speaker {current_speaker + 1} {timestamp}\n\n{' '.join(current_text).strip()}"
+        # Convert milliseconds to seconds for timestamp
+        timestamp = format_timestamp(float(current_start) / 1000)
+        section = (
+            f"Speaker {current_speaker} {timestamp}\n\n{' '.join(current_text).strip()}"
+        )
         formatted_sections.append(section)
 
     return "\n\n".join(formatted_sections)
@@ -110,7 +107,7 @@ Enhance the following transcript, starting directly with the speaker format:
 """
 
     response = model.generate_content(
-        [prompt, {"mime_type": "audio/mp3", "data": audio_segment.read()}]
+        [prompt, chunk_text, {"mime_type": "audio/mp3", "data": audio_segment.read()}]
     )
     return response.text
 
@@ -125,11 +122,13 @@ def create_chunks(utterances, target_tokens=7500):
     for utterance in utterances:
         # Start new chunk if this is first utterance
         if not current_chunk:
-            current_start = utterance.start
+            current_start = float(utterance.start) / 1000  # Convert ms to seconds
             current_chunk = [utterance]
-            current_end = utterance.end
+            current_end = float(utterance.end) / 1000  # Convert ms to seconds
         # Check if adding this utterance would exceed token limit
-        elif (float(utterance.end) - float(current_start)) * 25 > target_tokens:
+        elif (
+            len(" ".join(u.text for u in current_chunk)) + len(utterance.text)
+        ) / 4 > target_tokens:
             # Save current chunk and start new one
             chunks.append(
                 {
@@ -139,12 +138,12 @@ def create_chunks(utterances, target_tokens=7500):
                 }
             )
             current_chunk = [utterance]
-            current_start = utterance.start
-            current_end = utterance.end
+            current_start = float(utterance.start) / 1000
+            current_end = float(utterance.end) / 1000
         else:
             # Add to current chunk
             current_chunk.append(utterance)
-            current_end = utterance.end
+            current_end = float(utterance.end) / 1000
 
     # Add final chunk
     if current_chunk:
@@ -157,7 +156,7 @@ def create_chunks(utterances, target_tokens=7500):
 
 def process_audio(audio_path):
     """Main processing pipeline"""
-    print("Stage 1: Getting raw transcript from Deepgram...")
+    print("Stage 1: Getting raw transcript from AssemblyAI...")
     transcript_data = get_transcript(audio_path)
 
     print("Stage 2: Processing in chunks...")
@@ -209,7 +208,7 @@ iface = gr.Interface(
         gr.Textbox(label="Enhanced Transcript"),
     ],
     title="Audio Transcript Enhancement",
-    description="Upload an MP3 file to get both the original and enhanced transcripts using Deepgram and Gemini.",
+    description="Upload an MP3 file to get both the original and enhanced transcripts using AssemblyAI and Gemini.",
     cache_examples=False,
 )
 
