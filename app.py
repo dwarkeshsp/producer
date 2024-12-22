@@ -52,7 +52,7 @@ current_prompts = DEFAULT_PROMPTS.copy()
 def load_examples(filename: str, columns: list) -> str:
     """Load examples from CSV file."""
     try:
-        df = pd.read_csv(filename)
+        df = pd.read_csv(f"source/{filename}")
         if len(columns) == 1:
             examples = df[columns[0]].dropna().tolist()
             return "\n\n".join(examples)

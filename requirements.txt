@@ -1,0 +1,7 @@
+gradio
+deepgram-sdk
+google-generativeai
+anthropic
+pandas
+youtube-transcript-api
+pydub 
