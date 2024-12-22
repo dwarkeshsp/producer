@@ -6,3 +6,4 @@ pandas
 youtube-transcript-api
 pydub 
 assemblyai
+pytube

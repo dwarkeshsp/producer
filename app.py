@@ -1,100 +1,23 @@
 import gradio as gr
-import anthropic
-import pandas as pd
-from typing import Tuple, Dict, List
-from youtube_transcript_api import YouTubeTranscriptApi
-import re
-from pathlib import Path
 import asyncio
-import concurrent.futures
-from dataclasses import dataclass
-import time
-
-# Initialize Anthropic client
-client = anthropic.Anthropic()
-
-@dataclass
-class ContentRequest:
-    prompt_key: str
-    max_tokens: int = 2000
-    temperature: float = 0.6
+from pathlib import Path
+from utils.content_generator import ContentGenerator, ContentRequest
+from utils.youtube_utils import get_transcript, extract_video_id
 
 class TranscriptProcessor:
     def __init__(self):
-        self.current_prompts = self._load_default_prompts()
-        
-    def _load_default_prompts(self) -> Dict[str, str]:
-        """Load default prompts from files."""
-        return {
-            key: Path(f"prompts/{key}.txt").read_text()
-            for key in ["clips", "description", "timestamps", "titles_and_thumbnails"]
-        }
-
-    def _load_examples(self, filename: str, columns: List[str]) -> str:
-        """Load examples from CSV file."""
-        try:
-            df = pd.read_csv(f"data/{filename}")
-            if len(columns) == 1:
-                return "\n\n".join(df[columns[0]].dropna().tolist())
-            
-            examples = []
-            for _, row in df.iterrows():
-                if all(pd.notna(row[col]) for col in columns):
-                    example = "\n".join(f"{col}: {row[col]}" for col in columns)
-                    examples.append(example)
-            return "\n\n".join(examples)
-        except Exception as e:
-            print(f"Error loading {filename}: {str(e)}")
-            return ""
-
-    async def _generate_content(self, request: ContentRequest, transcript: str) -> str:
-        """Generate content using Claude asynchronously."""
-        print(f"Starting {request.prompt_key} generation...")
-        start_time = time.time()
-        
-        example_configs = {
-            "clips": ("Viral Twitter Clips.csv", ["Tweet Text", "Clip Transcript"]),
-            "description": ("Viral Episode Descriptions.csv", ["Tweet Text"]),
-            "timestamps": ("Timestamps.csv", ["Timestamps"]),
-            "titles_and_thumbnails": ("Titles & Thumbnails.csv", ["Titles", "Thumbnail"]),
-        }
-        
-        # Build prompt with examples
-        full_prompt = self.current_prompts[request.prompt_key]
-        if config := example_configs.get(request.prompt_key):
-            if examples := self._load_examples(*config):
-                full_prompt += f"\n\nPrevious examples:\n{examples}"
-
-        # Run API call in thread pool
-        loop = asyncio.get_event_loop()
-        with concurrent.futures.ThreadPoolExecutor() as pool:
-            message = await loop.run_in_executor(
-                pool,
-                lambda: client.messages.create(
-                    model="claude-3-5-sonnet-20241022",
-                    max_tokens=request.max_tokens,
-                    temperature=request.temperature,
-                    system=full_prompt,
-                    messages=[{"role": "user", "content": [{"type": "text", "text": f"Process this transcript:\n\n{transcript}"}]}]
-                )
-            )
-        result = message.content[0].text
-        print(f"Finished {request.prompt_key} in {time.time() - start_time:.2f} seconds")
-        return result
+        self.generator = ContentGenerator()
 
     def _get_youtube_transcript(self, url: str) -> str:
         """Get transcript from YouTube URL."""
         try:
-            video_id = re.search(
-                r"(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([A-Za-z0-9_-]+)",
-                url
-            ).group(1)
-            transcript = YouTubeTranscriptApi.list_transcripts(video_id).find_transcript(["en"])
-            return " ".join(entry["text"] for entry in transcript.fetch())
+            if video_id := extract_video_id(url):
+                return get_transcript(video_id)
+            raise Exception("Invalid YouTube URL")
         except Exception as e:
             raise Exception(f"Error fetching YouTube transcript: {str(e)}")
 
-    async def process_transcript(self, input_text: str) -> Tuple[str, str, str, str]:
+    async def process_transcript(self, input_text: str):
         """Process input and generate all content."""
         try:
             # Get transcript from URL or use direct input
@@ -114,7 +37,7 @@ class TranscriptProcessor:
 
             # Generate all content concurrently
             results = await asyncio.gather(
-                *[self._generate_content(req, transcript) for req in requests]
+                *[self.generator.generate_content(req, transcript) for req in requests]
             )
             return tuple(results)
 
@@ -123,9 +46,11 @@ class TranscriptProcessor:
 
     def update_prompts(self, *values) -> str:
         """Update the current session's prompts."""
-        keys = ["clips", "description", "timestamps", "titles_and_thumbnails"]
-        self.current_prompts = dict(zip(keys, values))
-        return "Prompts updated for this session! Changes will reset when you reload the page."
+        self.generator.current_prompts.update(zip(
+            ["clips", "description", "timestamps", "titles_and_thumbnails"],
+            values
+        ))
+        return "Prompts updated for this session!"
 
 def create_interface():
     """Create the Gradio interface."""
@@ -159,22 +84,22 @@ def create_interface():
 
             prompt_inputs = [
                 gr.Textbox(
-                    label="Clips Prompt", lines=10, value=processor.current_prompts["clips"]
+                    label="Clips Prompt", lines=10, value=processor.generator.current_prompts["clips"]
                 ),
                 gr.Textbox(
                     label="Description Prompt",
                     lines=10,
-                    value=processor.current_prompts["description"],
+                    value=processor.generator.current_prompts["description"],
                 ),
                 gr.Textbox(
                     label="Timestamps Prompt",
                     lines=10,
-                    value=processor.current_prompts["timestamps"],
+                    value=processor.generator.current_prompts["timestamps"],
                 ),
                 gr.Textbox(
                     label="Titles & Thumbnails Prompt",
                     lines=10,
-                    value=processor.current_prompts["titles_and_thumbnails"],
+                    value=processor.generator.current_prompts["titles_and_thumbnails"],
                 ),
             ]
             status = gr.Textbox(label="Status", interactive=False)
@@ -187,8 +112,8 @@ def create_interface():
             reset_btn = gr.Button("Reset to Default Prompts")
             reset_btn.click(
                 fn=lambda: (
-                    processor.update_prompts(*processor.current_prompts.values()),
-                    *processor.current_prompts.values(),
+                    processor.update_prompts(*processor.generator.current_prompts.values()),
+                    *processor.generator.current_prompts.values(),
                 ),
                 outputs=[status] + prompt_inputs,
             )

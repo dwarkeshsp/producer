@@ -1,0 +1,329 @@
+{
+  "hash": "5c4db290a55ca30ab58b0ec4d0f3c4cb",
+  "utterances": [
+    {
+      "speaker": "A",
+      "text": "Today I'm chatting with Adam Brown, who is a founder and lead of the Blueshift team at Google DeepMind, which is cracking maths and reasoning, and a theoretical physicist at Stanford. Adam, welcome.",
+      "start": 240,
+      "end": 11768
+    },
+    {
+      "speaker": "B",
+      "text": "Super excited to be here. Let's do this.",
+      "start": 11864,
+      "end": 13512
+    },
+    {
+      "speaker": "A",
+      "text": "First question, what is going to be the ultimate fate of the universe? And how much confidence should we have?",
+      "start": 13616,
+      "end": 19192
+    },
+    {
+      "speaker": "B",
+      "text": "I think it depends on physics we don't yet fully understand, because the ultimate fate is a, you know, it's a long time. And so that extends a long way out into the future. It also probably depends on us. It's probably in our hands, depending on how the unknown physics breaks out. Our idea of the answer to that question has changed quite a lot over the last century. About, like in the 1930s when they turned on the big telescopes, they discovered that the universe was expanding, which is something that they were not previously aware. And the question is, how fast is it expanding? And then in the 1990s, we discovered something that really surprised us, which is that there had been a learned debate up to that point about whether it was expanding so slowly that it would just expand and then recollapse in a big crunch, or whether it was expanding sufficiently fast that would just kind of keep going forever, maybe slowing down in its expansion, but not. Not growing forever. And then in possibly the worst day in human history in terms of expected value in the 90s, we discovered something that had not been anticipated, which is that not only is it expanding, but the rate at which it's expanding is accelerating. It's getting faster and faster and faster as it expands, what's called a cosmological constant or dark energy. And that completely changes the answer to the question. Question, what is the ultimate fate if it's really there? Because it means that distant galaxies, galaxies that are more than maybe 20 billion light years away from us right now, are being dragged away from us by the expansion of the universe. And we'll never reach them. We'll never get to them, because even if we headed towards them at the speed of light, the expansion of the universe is dragging them away faster than we'll be able to catch up with them. And that's really bad news. That's really bad news because we have plans for those galaxies. You know, maybe we go get them and turn them into tropical idols or computronium or whatever we had a plan for. And we can't if the cosmological constant is really there, because they're being dragged away from us by the expansion of the universe. So how confident of that picture should we be is your question. Yeah. So in answer to your question, according to that picture, eventually the ultimate fate will just be that these universe gets dragged away. Only the universes that are currently within a dozen light years of us, only the galaxies that are currently within a dozen light years of us will be able to reach.",
+      "start": 19296,
+      "end": 177144
+    },
+    {
+      "speaker": "A",
+      "text": "Wait, a dozen light years?",
+      "start": 177232,
+      "end": 178488
+    },
+    {
+      "speaker": "B",
+      "text": "Sorry, a dozen billion light years? Yeah. A dozen light years is not many other galaxies. In fact, a very small number of other stars, like maybe a dozen billion light years, those ones will be able to run out and grab. But that anything that's beyond that, it's just going to be dragged away from us by the cosmological constant. And so that's just a finite number of galaxies and a finite amount of resources. But then you ask, how confident should we be? And I think on first principles grounds, you should be not particularly confident in that answer at all. We've had a number of radical reimaginings of what the expansion and fate of the universe is in the last century and including in my lifetime. And so just on first principles grounds, you might imagine that you shouldn't be very confident, and indeed you shouldn't. We're not totally confident that the dark energy that currently seems to be pushing the universe apart is indeed going to be a feature of our universe forever. And things could change a lot, including, you could imagine that a future civilization could manipulate the cosmological constant and bleed it away or manipulate it in some way in order to avoid the heat death, basically.",
+      "start": 178624,
+      "end": 250584
+    },
+    {
+      "speaker": "A",
+      "text": "Can you say more about that? How would one do this and how far would it apply? How much would it expand the cosmic horizon?",
+      "start": 250632,
+      "end": 258456
+    },
+    {
+      "speaker": "B",
+      "text": "Oh, yeah, okay. So now, I mean, now we're getting to more speculative levels. But it does seem to be a feature of our best theories, a completely untested feature, but a feature nevertheless of our best theories that combine quantum mechanics and gravity. That the cosmic constant isn't just some fixed value, that in fact it can take different values, the amount of dark energy, the energy density and dark energy in what's called different vacuums. So for example, string theory has this property that there are many, many vacuums, if string theory is correct, in which the cosmological constant can take very different values. And that perhaps provides some hope for us, because if the cosmological constant is completely fixed, there is just a finite amount of free energy in our future light cone, and eventually we will use it all up and then we will be out of luck. We'll just be in a heat death scenario. And that's very bad news for Our future descendants and their happiness. If we want to survive forever as a civilization, and we would like an unbounded amount of free energy. And we could do that if we could take the cosmological constant from its current value down to a much smaller value, asymptotically approaching zero. And then you could hope that you could have an unlimited amount of free energy in our future lake cone. That's. I mean, this is obviously speculative, but it does, nevertheless, it's a natural possibility raised by our best theories. And what you'd have to do is you'd have to, you know, build apparatus to lower the value of the cosmological constant. I think maybe an analogy would be cloud seeding, for example, where you have water. In clouds, the water would all things. It's in a gaseous phase in clouds. All things considered, it would like to be rain. It would have, like, a lower energy if it was rain. But it has a trouble getting from where it is to where it wants to be. And by humans going in and taking actions, they can influence it to be in a phase of lower energy for their purposes. So I think that'll be the analogy here.",
+      "start": 258568,
+      "end": 390040
+    },
+    {
+      "speaker": "A",
+      "text": "Do we have some intuition about what would be required to do this? Because you can imagine some. If you're a malevolent or something, if you altogether removed it or maybe even made it negative, you could have a situation in which you caused some big implosion.",
+      "start": 390080,
+      "end": 404490
+    },
+    {
+      "speaker": "B",
+      "text": "Absolutely, yeah. So, I mean, I've got to say, almost every. You have to be very careful when you're doing this. There is this idea that there are many other potential places the universe could have ended up in some abstract space of cosmological constants and laws of physics. And most of those places it could end up, I mean, the overwhelming majority of them are extremely inhospitable to life as we know it, or possibly any kind of life. If the cosmological constant goes negative, then the whole universe will just, over the course of time, collapse to a singularity, which would be bad for life as we know it. Even if you arrange that the cosmological constant goes down by a small amount into some other vacuum, typically all the other constants of nature adjust. So they would change. For example, the electromagnetic constant that we know about, that galvans, the strength of the electromagnetic force would change. And that would be very bad for us because evolution has really honed us to be very, very good with this value of the electromagnetic constant, or the constant that controls the strong nuclear force or the weak nuclear force, and be very, very bad. When that's not true. So if we were to do it, we'd have to be very careful as we did it. Because if you change the. You have to choose somewhere that's compatible with everything else that is required for life. If you change the strong nuclear force even a tiny bit. This is something that sort of puzzled people years ago. It looks like it's got a very. And suddenly protons are unstable and decay into neutrons rather than vice versa. And everything you think you know about nuclear physics or the stability of matter gets disrupted. So you have to be very, very careful while you're doing it to only affect the cosmological constant and have be in firm control of all of the other effects it has.",
+      "start": 404910,
+      "end": 522856
+    },
+    {
+      "speaker": "A",
+      "text": "What kind of apparatus would you require to do this?",
+      "start": 522928,
+      "end": 525016
+    },
+    {
+      "speaker": "B",
+      "text": "Probably it wouldn't be a tremendously difficult. It would be a very delicate operation, but not a tremendously difficult operation. I mean, going back to cloud seeding, it's actually a pretty small thing, the thing that you're using to seed the clouds. And you would have something that looks like a particle collider, but that would probably have to have considerably more control than a particle collider in order to affect the transition to the vacuum you want and not any other vacuum. And then the actual bubble of new. If you make a bubble of new vacuum and it's too small, the surface tension beats the fact that there's an interior effect where it wants to be the new vacuum, and an exterior effect where there's a surface tension that just wants to make it collapse again. And if it's too small, the surface area to volume ratio is too small and it'll just collapse down again. So you need to make a sufficiently large bubble in order to affect this change. But probably the bubble is still. Is still microscopic in scale, one would expect, but it just needs to be extremely delicately tuned in order to do this.",
+      "start": 525168,
+      "end": 595034
+    },
+    {
+      "speaker": "A",
+      "text": "Is there some estimate about the amount of energy that would be required to create a bubble that evades its surface tension?",
+      "start": 595122,
+      "end": 601870
+    },
+    {
+      "speaker": "B",
+      "text": "Yeah, it would be large compared to the current reach of our particle colliders, but small compared to everyday energy scales like the mass in this collider, cup of coffee or something. It would probably be small on those scales. This is not a subject that in the sort of main line of theoretical physics research. But it does follow from those considerations that this would probably be something that our distant descendants would want to do and be able to do.",
+      "start": 602210,
+      "end": 632534
+    },
+    {
+      "speaker": "A",
+      "text": "This does make me wonder about. You might have different hopes about how future civilizations are organized with regards to how decentralized Is it how much freedom do individual, whatever the individual AIs, individual humans have. And if we live in the kind of universe where with advanced enough technology, one person could cause some sort of repercussion that extends throughout the light cone, then it has implications about what kinds of freedoms and.",
+      "start": 632702,
+      "end": 663740
+    },
+    {
+      "speaker": "B",
+      "text": "Absolutely, yeah. I mean, I think that ultimately we are talking a long way in the future now, I'd like to make that clear. But in that future day, I think absolutely, if you do something, if it is possible to do something that clears out your future light cone, that is a big negative externality that doesn't just apply to you, it applies to everybody else who wish to participate in your future light cone. So in such a world, you might imagine that there might be decentralization would not be impossible. Like a libertarian fantasy of the future is just not possible in a world in which there are such ginormous negative externalities. So I think that there is a question for our very future distant descendants of whether they will be able to live in a decentralized libertarian world in which just different galaxies don't need to necessarily coordinate will depend in part on what is possible or not possible according to the laws of physics. You could even imagine a really negative scenario in which for some reason you could have some speculative physics theories in which you could imagine that there would be power plants that people might be tempted to make that would be super efficient power plants, but would have a tiny risk of destabilising the vacuum in a negative way, not the sort of positive future I've described, but in which most destabilizations of the vacuum are very negative. And they might be willing to bear that risk because they get all the personal benefit of that. But the externality of also destroying their future light cone would mean they would have to be discouraged by a centralized authority.",
+      "start": 663860,
+      "end": 761558
+    },
+    {
+      "speaker": "A",
+      "text": "Is this related to how the Big Bang happened?",
+      "start": 761654,
+      "end": 764010
+    },
+    {
+      "speaker": "B",
+      "text": "Okay, that's an interesting question. So, I mean, not according to the normal story, but there are speculative but not tremendously implausible theories in which our Big Bang was the result of what's called a bubble universe. So for us it was a very big deal. In this sort of meta multiverse, it was just a bubble forming, and then our universe as we know it exists in a bubble there.",
+      "start": 764750,
+      "end": 790754
+    },
+    {
+      "speaker": "A",
+      "text": "And do you think it's likely?",
+      "start": 790842,
+      "end": 792050
+    },
+    {
+      "speaker": "B",
+      "text": "Usually people are thinking that something just spontaneously happens in the same way that rain spontaneously happens in a cloud, that somebody didn't go and seed it deliberately to make it happen. But you could more than free to speculate that somebody seeded it to make it happen as well.",
+      "start": 792170,
+      "end": 806194
+    },
+    {
+      "speaker": "A",
+      "text": "Sorry, how? Because in the inflaton field or whatever in which this happens, there's not a thing that's. Maybe there is. Who would be in a position to seed these bubbles?",
+      "start": 806282,
+      "end": 818066
+    },
+    {
+      "speaker": "B",
+      "text": "Well, it would have to be some. I mean, now we're getting into extremely speculative territory and I should make it clear I am describing rather than endorsing this point of view. But yeah, you could imagine somebody in the sort of meta universe doing the same thing that we've just been talking about, artist descending, doing distant descendants doing in our universe, which is seeding a new bubble in this. What's sometimes called the multiverse, in which new people.",
+      "start": 818098,
+      "end": 842320
+    },
+    {
+      "speaker": "A",
+      "text": "So we could. How does this respect the conservation of energy or the conservation of energy is.",
+      "start": 842440,
+      "end": 848192
+    },
+    {
+      "speaker": "B",
+      "text": "Not conserved in general relativity, energy is not conserved. It's conserved locally at things you can do at a local level. But in an expanding universe, energy is not conserved globally. This is one of the big surprises that is not a speculative statement. That is a statement that goes all the way back to Einstein and general relativity is energy is simply not conserved at the global level. It's conserved at the local level. You can't do something in your lab that will generate free energy. But if you can participate in the expansion of the entire universe, then energy is not conserved. Then.",
+      "start": 848216,
+      "end": 882170
+    },
+    {
+      "speaker": "A",
+      "text": "Do our future descendants have any constraints in terms of. Because earlier we were mentioning as a catastrophe, we found out about the cosmological constant because it limits our. Our cosmic horizon and that thus limits the free energy that our descendants would have access to. But if you can just make entire universes.",
+      "start": 882210,
+      "end": 902282
+    },
+    {
+      "speaker": "B",
+      "text": "Yeah, this is a matter of extreme interest. I would say to us it won't be relevant for tens of billions of years, probably because that's the timescale on which the cosmological constant operates. But if the cosmological constant is truly constant, then. And we've only known about it for 25 years, and there are, you know, astronomical observations that seem to be in tension with that. But like if it is truly constant, then there is a finite amount of free energy in our universe. If it's not constant, if we can manipulate it, or even if it naturally decays on its own, then there is the possibility of an unbounded amount of free energy in our future and we would avoid a heat death scenario.",
+      "start": 902426,
+      "end": 942404
+    },
+    {
+      "speaker": "A",
+      "text": "Yeah. So I guess I'm trying to understand the situation you mentioned earlier, where somebody seeded our universe that require they've created a bunch of energy. Correct. And that's related to them having something equivalent to a positive cosmological Constant in their.",
+      "start": 942532,
+      "end": 962474
+    },
+    {
+      "speaker": "B",
+      "text": "Yes. In any of these scenarios in which our universe is a bubble that formed in a sort of bigger, what's called a multiverse or that's a loaded term, but a sort of larger universe in which our universe is just one bubble, the higher. The meta universe also has a cosmological constant and it is higher than the value in our universe. That is, the one sense in which there's some version of energy conservation is that you can go down from high to low. It is considerably harder to go from low to high.",
+      "start": 962562,
+      "end": 1001120
+    },
+    {
+      "speaker": "A",
+      "text": "So the idea is that you'd recursively have universes in which the bottommost one would immediately implode because of a negative cosmological constant, and the biggest one is exponentially increasing.",
+      "start": 1001420,
+      "end": 1012900
+    },
+    {
+      "speaker": "B",
+      "text": "Correct. The rate at which the universe is exponentially increasing is set by the cosmological constant in which the volume of the universe is exponentially increasing. So you can imagine a scenario in which there was a high cosmological constant. You have a bubble universe that has a lower value of the cosmological constant. It continues to expand. You could make new bubble universes or new regions in that universe that have a lower cosmos constant, either naturally and spontaneously or due to action that we might take. And as long as that cosmosial constant is non negative, is zero or positive, that universe will not implode. If it goes negative, that universe will eventually implode. So you could imagine a cascade in which you go to lower and lower values of the cosmological constant. There are a lot of engineering details to be worked out, but what I'm describing is a scenario that is not inconsistent with the known laws of physics.",
+      "start": 1013060,
+      "end": 1066204
+    },
+    {
+      "speaker": "A",
+      "text": "How likely do you think this is?",
+      "start": 1066332,
+      "end": 1068040
+    },
+    {
+      "speaker": "B",
+      "text": "If the laws of physics are as we believe them to be, and if we do not blow ourselves up in some other way, this is an issue that our distant descendants will eventually have to confront.",
+      "start": 1068500,
+      "end": 1082582
+    },
+    {
+      "speaker": "A",
+      "text": "No, no, no. As in like the whole, like there's like other bubbles. Not about something our descendants might do. But the fact that the Big Bang was the result of a bubble within some other metastable state.",
+      "start": 1082646,
+      "end": 1095638
+    },
+    {
+      "speaker": "B",
+      "text": "Yeah, I'm going to say 50%. I think there's a lot of uncertainty, a lot of things we don't understand. On the other hand, if you just take our best theories of high energy physics as we understand them today, it seems to be a very natural implication of them of the combination of gravity and quantum mechanics and inflation that we seem to think was this phase, that when we look back in the night sky, it does look like it was expanding a lot faster. In the past. So this, I would say, is pretty consistent with everything we know. But I'm going to round it down to 50% just because of our epistemic humility about these incredibly speculative matters.",
+      "start": 1095774,
+      "end": 1133608
+    },
+    {
+      "speaker": "A",
+      "text": "It's funny because this is often the way people talk about their AI timelines of, like, really, I think it's like 2027. But if I'm taking the outside view, I'm going to say 2030.",
+      "start": 1133784,
+      "end": 1143860
+    },
+    {
+      "speaker": "B",
+      "text": "Okay.",
+      "start": 1144800,
+      "end": 1145304
+    },
+    {
+      "speaker": "A",
+      "text": "And is there any way, given our current understanding, of using bubble universes, to do useful work for the people outside of it, so to do some computation within it or to get some sort of actual energy out of it for.",
+      "start": 1145352,
+      "end": 1162572
+    },
+    {
+      "speaker": "B",
+      "text": "The people outside of the bubble? So the thing about these bubbles is that they tend to expand at the speed of light. So even if you start off outside, you're probably going to end up inside them in short order unless you run away very quickly. So this isn't something that we make in the lab and then just remains in a box in the lab. And then we use to do things. This would be something that we would do or maybe would just happen to us because of spontaneous vacuum decay. And it would engulf all of our future light cone. And so it's not a box that you're using to do things. It's a new place that you live. You better hope that you've engineered the stuff so that that new place is still hospitable for life.",
+      "start": 1162596,
+      "end": 1201092
+    },
+    {
+      "speaker": "A",
+      "text": "Maybe this is a conceptual error, but if you do have a cosmological constant that perfectly balances the, I guess, the initial implosion energy and also the gravitation inside the bubble universe or something, couldn't you, like, is there any possibility of having. Because sometimes if we were living, if our universe was in a situation where the cosmological constant exactly equaled gravity, and then we would get at a standstill at some point. Could you imagine something like that here?",
+      "start": 1201196,
+      "end": 1234260
+    },
+    {
+      "speaker": "B",
+      "text": "Not in a useful or stable way, no. The only way this is going to work is if the bubble has the properties that will expand at the speed of light and that we end up living in it. Otherwise, there's no point. You could hypothetically make an unstable bubble that was exactly balanced between implosion and explosion. That would be an unstable place to be. It would be like sitting at the top of a hill. And so it would be very dangerous. It would roll one way or the other. It would also be of no use to us. It would be. It would have to have positive energy. And the whole point of this thing is to sort of unleash free energy. So we'd have to put free energy into it.",
+      "start": 1234420,
+      "end": 1272162
+    },
+    {
+      "speaker": "A",
+      "text": "If we lived in a world of intelligent design and these were the laws we found ourselves with at a high level, what is the creator trying to maximize? I mean, other than maybe us existing, does there seem like something that is being optimized for what's going on here?",
+      "start": 1272266,
+      "end": 1292830
+    },
+    {
+      "speaker": "B",
+      "text": "If you just throw a dart in laws of physics, space, in some sense, you would not. There are some properties of our universe that would be somewhat surprising, including the fact that our life seems to be incredibly hospitable for complexity and interestingness and the possibility of intelligent life, which is an interesting fact. You know, everything is just tuned just so that chemistry is possible. And perhaps in most places you would throw the dart in possibility. Space chemistry would be impossible. The universe as we look around us is incredibly rich. There's structure at the scale of viruses all the way to structure at the scale of galaxies. There's interesting structure at all levels. This is a very interesting fact. Now, some people think that actually interesting structure is a very generic property. And if we threw a dart somewhere in possibility space, there would be interesting structure through a dart somewhere in the laws of physics space, just not. There will be the possibility of interesting structure no matter where it hit. Maybe it wouldn't look like ours, but there'll be some different structure. But really, if you look at the laws of physics, it does seem like they're very well attuned for life. So in your scenario where there's an intelligent creator, then they would probably be. You'd have to say they'd optimized for that. It's also the case that you can imagine explanations for why it's so well tuned for life that don't involve an intelligent creator.",
+      "start": 1293200,
+      "end": 1390686
+    },
+    {
+      "speaker": "A",
+      "text": "Is there any explanation other than the anthropic principle for why we find ourselves in such a universe?",
+      "start": 1390718,
+      "end": 1395358
+    },
+    {
+      "speaker": "B",
+      "text": "Well, you suggested one with an intelligent creator, but yeah, the usual one that people like to talk about is the Anthropocene.",
+      "start": 1395454,
+      "end": 1400894
+    },
+    {
+      "speaker": "A",
+      "text": "So is it like 99% that basically the reason we find ourselves in a universe like this is the anthropic principle. Like, what probability do you put? Well, what probability do you put on? Like, anthropic principle is key to explaining why we find ourselves in the kind of universe we find ourselves in?",
+      "start": 1400942,
+      "end": 1416256
+    },
+    {
+      "speaker": "B",
+      "text": "I think it's going to depend on what quantity you're asking me about. So if you ask me, you know, 99% of the matter in the solar system lives in the sun or on Jupiter, and yet we leave seems to live in this like, really weird corner of the solar system. Why is that? I'm pretty confident that the answer to that is anthropic, that if we lived in the center of the sun, we'd be dead. And so one should expect intelligent life to live in this weird place in parameter space. So that's perhaps my most confident answer to that question. Why do we live where we live? Then if we start talking about different concepts of nature, we start getting different answers to that question. Why is the universe tuned such that the proton is just a tiny bit more stable than the neutron? That seems like that's begging for an anthropic answer. Of course, if that's true, that demands that there be different places somewhere in the multiverse where in fact, the neutron is slightly heavier than the protons, decay to neutrons, rather than vice versa, and people just don't live there. So if you want to go down that road, you end up being naturally drawn to the existence of these variables. Scanning over space, is there some way.",
+      "start": 1416328,
+      "end": 1490754
+    },
+    {
+      "speaker": "A",
+      "text": "For the anthropic principle to exist that doesn't involve these bubble universes?",
+      "start": 1490762,
+      "end": 1495670
+    },
+    {
+      "speaker": "B",
+      "text": "Yes, all you need is that there is different places in some larger possibility space where these quantities scan, where they take different values. Bubble universe is just one way to do that. We could just be different experiments, simulations, in some meta universe somewhere.",
+      "start": 1496170,
+      "end": 1512096
+    },
+    {
+      "speaker": "A",
+      "text": "Okay, so that actually brings up a good point. You were just saying, look, all the things we see in the universe are the result of these different interactions between things. You wouldn't necessarily anticipate what part of this is the least sort of logically inevitable. Right. Some theories seem to have this feeling of it had to be this way. And then some are just like, why are there these 16 fields and hundreds of particles and so forth. What part of our understanding of physics.",
+      "start": 1512218,
+      "end": 1542130
+    },
+    {
+      "speaker": "B",
+      "text": "Yeah, I would say that there's three categories. There's things like quantum mechanics and general relativity that are not logically inevitable, but do seem to be attractors in some sense. Then there are things like the standard model has 20 fields and it has a mass of the neutrino. Why do those masses of the neutrino have the values that they have? That seems the standard model was just fine before we discovered that the neutrinos have mass in the 1990s. And those just seem to be just totally kind of out of nowhere. Who ordered that? A famous Nobel Prize winning physicist said about the muon. In fact, longer ago than that, they just seem to be there, but without any particular reason. And then there are these quantities that are somewhere in the middle that Are not logically necessary, but do seem to be necessary for life as we know it to exist.",
+      "start": 1542220,
+      "end": 1592740
+    },
+    {
+      "speaker": "A",
+      "text": "What is the most underappreciated discovery in cosmology in our lifetime?",
+      "start": 1593560,
+      "end": 1598500
+    },
+    {
+      "speaker": "B",
+      "text": "We have, in the 2000s and before, very carefully studied the cosmic microwave background. This what's sometimes called the echo of the big bang and the inhomogeneities in it, the fact that it's not quite the same in every direction. And doing that discovered like a super interesting fact that was definitely not known in my lifetime anyway, which is the quantum origin of all of the structure we see in the universe. So if you look out in the universe, the density is not the same everywhere. The density on earth is much more than an interplanetary space, which is itself much more than an intergalactic space. And the center of the sun is all the more denser. It is inhomogeneous. It is not the same. And if you look back to the early universe, it was considerably more homogeneous. It was homogeneous to 1 part in 10 to the 5 or 10 to the 6th super almost everywhere. Every point had almost exactly the same density. And so then there's kind of an easy part and a hard part. The easy part is understanding how if you have very small inhomogeneities, how they grow into large inhomogeneities, that's already quite well understood by classical physics. Basically, the idea is this. If you have a place that's denser and a place that's less dense, then the gravitational force pulls stuff towards the high density stuff. So if you have a small inhomogeneity, they naturally grow under that effect, where they just gravitationally fall towards the denser thing. If you start seeded with small inhomogeneities, that will grow large inhomogeneities. And that's well understood. The thing that we now understand much better than we did is where those small inhomogeneities come from. Like why just after the Big bang, was the universe not perfectly homogeneous? Because if it was perfectly homogeneous, there's no opportunity for anything to grow. And we now understand with a high degree of confidence something that we didn't understand, which is that those inhomogeneities were seeded by quantum fluctuations. That when the universe, just after the big bang was considerably smaller than it is today, the effects of quantum mechanics were correspondingly more important. And those quantum fluctuations produced tiny little fluctuations in the density of matter in the universe. And all of those tiny little one part in a million fluctuations grew into all of the structure you see in the universe, all the galaxies you me everything else.",
+      "start": 1599000,
+      "end": 1746670
+    },
+    {
+      "speaker": "A",
+      "text": "Is it a meaningful question to ask what level of structure each individual discrepancy corresponds to each individual 1 in 10 to the 5 part? Is it a galactic supercluster? Is it a galaxy? Is it?",
+      "start": 1747490,
+      "end": 1762470
+    },
+    {
+      "speaker": "B",
+      "text": "It depends. So there were we believe that these were generated during the through a period we called inflation, very poorly understood, very early in the universe. And there were fluctuations made not just at one scale in those days, but at all scales, or many, many scales. So there were fluctuations made at a scale that nowadays corresponds to 10% of the distance across the visible universe, all the way down to structures that were inhomogeneities that were much, much smaller scale that correspond to a galaxy today, all the way down to. Now, this is speculation, but. But in some models of inflation, there were.",
+      "start": 1762930,
+      "end": 1799650
+    }
+  ]
+}
