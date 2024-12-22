@@ -206,12 +206,17 @@ iface = gr.Interface(
     fn=handle_upload,
     inputs=gr.Audio(type="filepath"),
     outputs=[
-        gr.Textbox(label="Original Transcript"),
-        gr.Textbox(label="Enhanced Transcript"),
+        gr.Textbox(label="Original Transcript", container=False),
+        gr.Textbox(label="Enhanced Transcript", container=False),
     ],
     title="Audio Transcript Enhancement",
     description="Upload an MP3 file to get both the original and enhanced transcripts using AssemblyAI and Gemini.",
     cache_examples=False,
+    allow_flagging="never",
+    theme=gr.themes.Default(
+        spacing_size="sm",
+        text_size="sm",
+    ),
 )
 
 if __name__ == "__main__":
