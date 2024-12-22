@@ -1,181 +1,150 @@
 import gradio as gr
 import anthropic
 import pandas as pd
-from typing import Tuple, Dict
+from typing import Tuple, Dict, List
 from youtube_transcript_api import YouTubeTranscriptApi
 import re
+from pathlib import Path
+import asyncio
+import concurrent.futures
+from dataclasses import dataclass
+import time
 
 # Initialize Anthropic client
 client = anthropic.Anthropic()
 
-# Default prompts that we can experiment with
-DEFAULT_PROMPTS = {
-    "clips": """You are a social media expert for the Dwarkesh Podcast. Generate 10 viral-worthy clips from the transcript.
-Format as:
-Tweet 1
-Tweet Text: [text]
-Clip Transcript: [45-120 seconds of transcript]
+@dataclass
+class ContentRequest:
+    prompt_key: str
+    max_tokens: int = 2000
+    temperature: float = 0.6
 
-Previous examples:
-{clips_examples}""",
-    "description": """Create an engaging episode description tweet (280 chars max) that:
-1. Highlights compelling aspects
-2. Includes topic areas and handles
-3. Ends with "Links below" or "Enjoy!"
+class TranscriptProcessor:
+    def __init__(self):
+        self.current_prompts = self._load_default_prompts()
+        
+    def _load_default_prompts(self) -> Dict[str, str]:
+        """Load default prompts from files."""
+        return {
+            key: Path(f"prompts/{key}.txt").read_text()
+            for key in ["clips", "description", "timestamps", "titles_and_thumbnails"]
+        }
 
-Previous examples:
-{description_examples}""",
-    "timestamps": """Generate timestamps (HH:MM:SS) every 3-8 minutes covering key transitions and moments.
-Use 2-6 word descriptions.
-Start at 00:00:00.
-
-Previous examples:
-{timestamps_examples}""",
-    "titles_and_thumbnails": """Create 3-5 compelling title-thumbnail combinations that tell a story.
-
-Title Format: "Guest Name – Key Story or Core Insight"
-Thumbnail: 2-4 ALL CAPS words that create intrigue with the title
-
-Example: "David Reich – How One Small Tribe Conquered the World 70,000 Years Ago"
-Thumbnail: "LAST HUMANS STANDING"
-
-The combination should create intellectual curiosity without clickbait.
-
-Previous examples:
-{titles_and_thumbnails_examples}""",
-}
-
-# Current prompts used in the session
-current_prompts = DEFAULT_PROMPTS.copy()
-
-
-def load_examples(filename: str, columns: list) -> str:
-    """Load examples from CSV file."""
-    try:
-        df = pd.read_csv(f"source/{filename}")
-        if len(columns) == 1:
-            examples = df[columns[0]].dropna().tolist()
+    def _load_examples(self, filename: str, columns: List[str]) -> str:
+        """Load examples from CSV file."""
+        try:
+            df = pd.read_csv(f"data/{filename}")
+            if len(columns) == 1:
+                return "\n\n".join(df[columns[0]].dropna().tolist())
+            
+            examples = []
+            for _, row in df.iterrows():
+                if all(pd.notna(row[col]) for col in columns):
+                    example = "\n".join(f"{col}: {row[col]}" for col in columns)
+                    examples.append(example)
             return "\n\n".join(examples)
+        except Exception as e:
+            print(f"Error loading {filename}: {str(e)}")
+            return ""
 
-        examples = []
-        for _, row in df.iterrows():
-            if all(pd.notna(row[col]) for col in columns):
-                example = "\n".join(f"{col}: {row[col]}" for col in columns)
-                examples.append(example)
-        return "\n\n".join(examples)
-    except Exception as e:
-        print(f"Error loading {filename}: {str(e)}")
-        return ""
+    async def _generate_content(self, request: ContentRequest, transcript: str) -> str:
+        """Generate content using Claude asynchronously."""
+        print(f"Starting {request.prompt_key} generation...")
+        start_time = time.time()
+        
+        example_configs = {
+            "clips": ("Viral Twitter Clips.csv", ["Tweet Text", "Clip Transcript"]),
+            "description": ("Viral Episode Descriptions.csv", ["Tweet Text"]),
+            "timestamps": ("Timestamps.csv", ["Timestamps"]),
+            "titles_and_thumbnails": ("Titles & Thumbnails.csv", ["Titles", "Thumbnail"]),
+        }
+        
+        # Build prompt with examples
+        full_prompt = self.current_prompts[request.prompt_key]
+        if config := example_configs.get(request.prompt_key):
+            if examples := self._load_examples(*config):
+                full_prompt += f"\n\nPrevious examples:\n{examples}"
 
+        # Run API call in thread pool
+        loop = asyncio.get_event_loop()
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            message = await loop.run_in_executor(
+                pool,
+                lambda: client.messages.create(
+                    model="claude-3-5-sonnet-20241022",
+                    max_tokens=request.max_tokens,
+                    temperature=request.temperature,
+                    system=full_prompt,
+                    messages=[{"role": "user", "content": [{"type": "text", "text": f"Process this transcript:\n\n{transcript}"}]}]
+                )
+            )
+        result = message.content[0].text
+        print(f"Finished {request.prompt_key} in {time.time() - start_time:.2f} seconds")
+        return result
 
-def generate_content(
-    prompt_key: str, transcript: str, max_tokens: int = 1000, temp: float = 0.6
-) -> str:
-    """Generate content using Claude."""
-    examples = {
-        "clips": load_examples(
-            "Viral Twitter Clips.csv", ["Tweet Text", "Clip Transcript"]
-        ),
-        "description": load_examples("Viral Episode Descriptions.csv", ["Tweet Text"]),
-        "timestamps": load_examples("Timestamps.csv", ["Timestamps"]),
-        "titles_and_thumbnails": load_examples(
-            "Titles & Thumbnails.csv", ["Titles", "Thumbnail"]
-        ),
-    }
+    def _get_youtube_transcript(self, url: str) -> str:
+        """Get transcript from YouTube URL."""
+        try:
+            video_id = re.search(
+                r"(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([A-Za-z0-9_-]+)",
+                url
+            ).group(1)
+            transcript = YouTubeTranscriptApi.list_transcripts(video_id).find_transcript(["en"])
+            return " ".join(entry["text"] for entry in transcript.fetch())
+        except Exception as e:
+            raise Exception(f"Error fetching YouTube transcript: {str(e)}")
 
-    message = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
-        max_tokens=max_tokens,
-        temperature=temp,
-        system=current_prompts[prompt_key].format(
-            **{f"{prompt_key}_examples": examples[prompt_key]}
-        ),
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": f"Process this transcript:\n\n{transcript}",
-                    }
-                ],
-            }
-        ],
-    )
-    return message.content[0].text
+    async def process_transcript(self, input_text: str) -> Tuple[str, str, str, str]:
+        """Process input and generate all content."""
+        try:
+            # Get transcript from URL or use direct input
+            transcript = (
+                self._get_youtube_transcript(input_text)
+                if any(x in input_text for x in ["youtube.com", "youtu.be"])
+                else input_text
+            )
 
+            # Define content generation requests
+            requests = [
+                ContentRequest("clips", max_tokens=8192),
+                ContentRequest("description"),
+                ContentRequest("timestamps", temperature=0.4),
+                ContentRequest("titles_and_thumbnails", temperature=0.7),
+            ]
 
-def get_youtube_transcript(url: str) -> str:
-    """Get transcript from YouTube URL."""
-    try:
-        video_id = re.search(
-            r"(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([A-Za-z0-9_-]+)",
-            url,
-        ).group(1)
-        transcript = YouTubeTranscriptApi.list_transcripts(video_id).find_transcript(
-            ["en"]
-        )
-        return " ".join(entry["text"] for entry in transcript.fetch())
-    except Exception as e:
-        raise Exception(f"Error fetching YouTube transcript: {str(e)}")
+            # Generate all content concurrently
+            results = await asyncio.gather(
+                *[self._generate_content(req, transcript) for req in requests]
+            )
+            return tuple(results)
 
+        except Exception as e:
+            return (f"Error processing input: {str(e)}",) * 4
 
-def process_transcript(input_text: str) -> Tuple[str, str, str, str]:
-    """Process input and generate all content."""
-    try:
-        # Get transcript from URL or use direct input
-        transcript = (
-            get_youtube_transcript(input_text)
-            if any(x in input_text for x in ["youtube.com", "youtu.be"])
-            else input_text
-        )
-
-        # Generate all content types
-        return (
-            generate_content("clips", transcript, max_tokens=8192),
-            generate_content("description", transcript),
-            generate_content("timestamps", transcript, temp=0.4),
-            generate_content("titles_and_thumbnails", transcript, temp=0.7),
-        )
-    except Exception as e:
-        error_msg = f"Error processing input: {str(e)}"
-        return (error_msg,) * 4
-
-
-def update_prompts(*values) -> str:
-    """Update the current session's prompts."""
-    global current_prompts
-    current_prompts = {
-        "clips": values[0],
-        "description": values[1],
-        "timestamps": values[2],
-        "titles_and_thumbnails": values[3],
-    }
-    return (
-        "Prompts updated for this session! Changes will reset when you reload the page."
-    )
-
+    def update_prompts(self, *values) -> str:
+        """Update the current session's prompts."""
+        keys = ["clips", "description", "timestamps", "titles_and_thumbnails"]
+        self.current_prompts = dict(zip(keys, values))
+        return "Prompts updated for this session! Changes will reset when you reload the page."
 
 def create_interface():
     """Create the Gradio interface."""
+    processor = TranscriptProcessor()
+    
     with gr.Blocks(title="Podcast Transcript Analyzer") as app:
         with gr.Tab("Generate Content"):
             gr.Markdown("# Podcast Content Generator")
-            input_text = gr.Textbox(
-                label="Input", placeholder="YouTube URL or transcript...", lines=10
-            )
+            input_text = gr.Textbox(label="Input", placeholder="YouTube URL or transcript...", lines=10)
             submit_btn = gr.Button("Generate Content")
             outputs = [
-                gr.Textbox(label="Twitter Clips", lines=10, interactive=False),
-                gr.Textbox(label="Twitter Description", lines=3, interactive=False),
-                gr.Textbox(label="Timestamps", lines=10, interactive=False),
-                gr.Textbox(
-                    label="Title & Thumbnail Suggestions", lines=10, interactive=False
-                ),
+                gr.Textbox(label=label, lines=10, interactive=False)
+                for label in ["Twitter Clips", "Twitter Description", "Timestamps", "Title & Thumbnail Suggestions"]
             ]
-            submit_btn.click(
-                fn=process_transcript, inputs=[input_text], outputs=outputs
-            )
+            
+            async def process_wrapper(text):
+                return await processor.process_transcript(text)
+            
+            submit_btn.click(fn=process_wrapper, inputs=[input_text], outputs=outputs)
 
         with gr.Tab("Experiment with Prompts"):
             gr.Markdown("# Experiment with Prompts")
@@ -190,42 +159,41 @@ def create_interface():
 
             prompt_inputs = [
                 gr.Textbox(
-                    label="Clips Prompt", lines=10, value=DEFAULT_PROMPTS["clips"]
+                    label="Clips Prompt", lines=10, value=processor.current_prompts["clips"]
                 ),
                 gr.Textbox(
                     label="Description Prompt",
                     lines=10,
-                    value=DEFAULT_PROMPTS["description"],
+                    value=processor.current_prompts["description"],
                 ),
                 gr.Textbox(
                     label="Timestamps Prompt",
                     lines=10,
-                    value=DEFAULT_PROMPTS["timestamps"],
+                    value=processor.current_prompts["timestamps"],
                 ),
                 gr.Textbox(
                     label="Titles & Thumbnails Prompt",
                     lines=10,
-                    value=DEFAULT_PROMPTS["titles_and_thumbnails"],
+                    value=processor.current_prompts["titles_and_thumbnails"],
                 ),
             ]
             status = gr.Textbox(label="Status", interactive=False)
 
             # Update prompts when they change
             for prompt in prompt_inputs:
-                prompt.change(fn=update_prompts, inputs=prompt_inputs, outputs=[status])
+                prompt.change(fn=processor.update_prompts, inputs=prompt_inputs, outputs=[status])
 
             # Reset button
             reset_btn = gr.Button("Reset to Default Prompts")
             reset_btn.click(
                 fn=lambda: (
-                    update_prompts(*DEFAULT_PROMPTS.values()),
-                    *DEFAULT_PROMPTS.values(),
+                    processor.update_prompts(*processor.current_prompts.values()),
+                    *processor.current_prompts.values(),
                 ),
                 outputs=[status] + prompt_inputs,
             )
 
     return app
-
 
 if __name__ == "__main__":
     create_interface().launch()

@@ -102,8 +102,8 @@ class Enhancer:
         generativeai.configure(api_key=api_key)
         self.model = generativeai.GenerativeModel("gemini-exp-1206")
 
-        # Load prompt template
-        prompt_path = Path(__file__).parent / "prompt.txt"
+        # Update prompt path
+        prompt_path = Path("prompts/enhance.txt")
         self.prompt = prompt_path.read_text()
 
     async def enhance_chunks(self, chunks: List[tuple[str, io.BytesIO]]) -> List[str]:
