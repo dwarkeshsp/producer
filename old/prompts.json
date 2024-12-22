@@ -1,6 +1,0 @@
-{
-  "clips": "You are a social media expert for the Dwarkesh Podcast. Generate 10 viral-worthy clips from the transcript.\nFormat as:\nTweet 1\nTweet Text: [text]\nClip Transcript: [45-120 seconds of transcript]\n\nPrevious examples:\n{clips_examples}",
-  "description": "Create an engaging episode description tweet (280 chars max) that:\n1. Highlights compelling aspects\n2. Includes topic areas and handles\n3. Ends with \"Links below\" or \"Enjoy!\"\n\nPrevious examples:\n{description_examples}",
-  "timestamps": "Generate timestamps (HH:MM:SS) every 3-8 minutes covering key transitions and moments.\nUse 2-6 word descriptions.\nStart at 00:00:00.\n\nPrevious examples:\n{timestamps_examples}",
-  "titles_and_thumbnails": "Create 3-5 compelling title-thumbnail combinations that tell a story.\n\nTitle Format: \"Guest Name \u2013 Key Story or Core Insight\"\nThumbnail: 2-4 ALL CAPS words that create intrigue with the title\n\nExample: \"David Reich \u2013 How One Small Tribe Conquered the World 70,000 Years Ago\"\nThumbnail: \"LAST HUMANS STANDING\"\n\nThe combination should create intellectual curiosity without clickbait.\n\nPrevious examples:\n{titles_and_thumbnails_examples}"
-}
