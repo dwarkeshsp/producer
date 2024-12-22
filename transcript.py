@@ -1,8 +1,12 @@
-import gradio as gr
+import argparse
 import assemblyai as aai
 from google import generativeai
 import os
 from pydub import AudioSegment
+import concurrent.futures
+
+# Suppress gRPC shutdown warnings
+os.environ["GRPC_PYTHON_LOG_LEVEL"] = "error"
 
 # Initialize API clients
 ASSEMBLYAI_API_KEY = os.getenv("ASSEMBLYAI_API_KEY")
@@ -78,12 +82,15 @@ Note: Below you'll find an auto-generated transcript that may help with speaker 
 Please:
 1. Fix speaker attribution errors, especially at segment boundaries. Watch for incomplete thoughts that were likely from the previous speaker.
 
-2. Optimize for readability over verbatim accuracy:
-   - Remove filler words (um, uh, like, you know)
-   - Eliminate false starts and repetitions
-   - Convert rambling sentences into clear, concise statements
-   - Break up run-on sentences into shorter ones
-   - Maintain natural conversation flow while improving clarity
+2. Optimize AGGRESSIVELY for readability over verbatim accuracy:
+   - Readability is the most important thing!!
+   - Remove ALL conversational artifacts (yeah, so, I mean, etc.)
+   - Remove ALL filler words (um, uh, like, you know)
+   - Remove false starts and self-corrections completely
+   - Remove redundant phrases and hesitations
+   - Convert any indirect or rambling responses into direct statements
+   - Break up run-on sentences into clear, concise statements
+   - Maintain natural conversation flow while prioritizing clarity and directness
 
 3. Format the output consistently:
    - Keep the "Speaker X 00:00:00" format (no brackets, no other formatting)
@@ -103,7 +110,7 @@ Speaker A 00:01:15
 
 When we look at the data, we see a consistent pattern in the results.
 
-And when we examine the second part of the analysis, it reveals a completely different finding.
+When we examine the second part of the analysis, it reveals a completely different finding.
 
 Enhance the following transcript, starting directly with the speaker format:
 """
@@ -114,7 +121,7 @@ Enhance the following transcript, starting directly with the speaker format:
     return response.text
 
 
-def create_chunks(utterances, target_tokens=7500):
+def create_chunks(utterances, target_tokens=2000):
     """Create chunks of utterances that fit within token limits"""
     chunks = []
     current_chunk = []
@@ -156,6 +163,14 @@ def create_chunks(utterances, target_tokens=7500):
     return chunks
 
 
+def process_chunk(chunk_data):
+    """Process a single chunk with Gemini"""
+    audio_path, chunk = chunk_data
+    chunk_text = format_transcript(chunk["utterances"])
+    audio_segment = get_audio_segment(audio_path, chunk["start"], chunk["end"])
+    return enhance_transcript(chunk_text, audio_segment)
+
+
 def process_audio(audio_path):
     """Main processing pipeline"""
     print("Stage 1: Getting raw transcript from AssemblyAI...")
@@ -163,34 +178,43 @@ def process_audio(audio_path):
 
     print("Stage 2: Processing in chunks...")
     chunks = create_chunks(transcript_data)
-    original_chunks = []
-    enhanced_chunks = []
 
-    for i, chunk in enumerate(chunks):
-        # Get original chunk
-        chunk_text = format_transcript(chunk["utterances"])
-        original_chunks.append(chunk_text)
+    # Get original transcript
+    original_chunks = [format_transcript(chunk["utterances"]) for chunk in chunks]
+    original_transcript = "\n".join(original_chunks)
 
-        # Process enhanced version
-        print(f"Processing chunk {i+1} of {len(chunks)}...")
-        audio_segment = get_audio_segment(audio_path, chunk["start"], chunk["end"])
-        enhanced_chunk = enhance_transcript(chunk_text, audio_segment)
-        enhanced_chunks.append(enhanced_chunk)
+    # Process enhanced versions in parallel
+    print(f"Stage 3: Enhancing {len(chunks)} chunks in parallel...")
+    chunk_data = [(audio_path, chunk) for chunk in chunks]
 
-    return "\n".join(original_chunks), "\n".join(enhanced_chunks)
+    # Use max_workers=None to allow as many threads as needed
+    with concurrent.futures.ThreadPoolExecutor(max_workers=None) as executor:
+        # Submit all tasks and store with their original indices
+        future_to_index = {
+            executor.submit(process_chunk, data): i for i, data in enumerate(chunk_data)
+        }
 
+        # Create a list to store results in order
+        enhanced_chunks = [None] * len(chunks)
 
-def handle_upload(audio):
-    """Handle Gradio interface uploads"""
-    if audio is None:
-        return "Please upload an audio file.", "Please upload an audio file."
+        # Process results as they complete
+        for future in concurrent.futures.as_completed(future_to_index):
+            index = future_to_index[future]
+            print(f"Completed chunk {index + 1}/{len(chunks)}")
+            enhanced_chunks[index] = future.result()
 
-    try:
-        original, enhanced = process_audio(audio)
-        return original, enhanced
-    except Exception as e:
-        error_msg = f"Error processing audio: {str(e)}"
-        return error_msg, error_msg
+    enhanced_transcript = "\n".join(enhanced_chunks)
+
+    # Write transcripts to files
+    with open("autogenerated-transcript.md", "w", encoding="utf-8") as f:
+        f.write(original_transcript)
+
+    with open("transcript.md", "w", encoding="utf-8") as f:
+        f.write(enhanced_transcript)
+
+    print("\nTranscripts have been saved to:")
+    print("- autogenerated-transcript.md")
+    print("- transcript.md")
 
 
 def get_audio_segment(audio_path, start_time, end_time):
@@ -201,23 +225,22 @@ def get_audio_segment(audio_path, start_time, end_time):
     return audio[start_ms:end_ms].export(format="mp3")
 
 
-# Create Gradio interface
-iface = gr.Interface(
-    fn=handle_upload,
-    inputs=gr.Audio(type="filepath"),
-    outputs=[
-        gr.Textbox(label="Original Transcript", container=False),
-        gr.Textbox(label="Enhanced Transcript", container=False),
-    ],
-    title="Audio Transcript Enhancement",
-    description="Upload an MP3 file to get both the original and enhanced transcripts using AssemblyAI and Gemini.",
-    cache_examples=False,
-    allow_flagging="never",
-    theme=gr.themes.Default(
-        spacing_size="sm",
-        text_size="sm",
-    ),
-)
+def main():
+    parser = argparse.ArgumentParser(
+        description="Generate enhanced transcripts from audio files"
+    )
+    parser.add_argument("audio_file", help="Path to the audio file to transcribe")
+    args = parser.parse_args()
+
+    if not os.path.exists(args.audio_file):
+        print(f"Error: File '{args.audio_file}' not found")
+        return
+
+    try:
+        process_audio(args.audio_file)
+    except Exception as e:
+        print(f"Error processing audio: {str(e)}")
+
 
 if __name__ == "__main__":
-    iface.launch()
+    main()
