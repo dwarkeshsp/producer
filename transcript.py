@@ -10,7 +10,7 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 dg_client = DeepgramClient(DEEPGRAM_API_KEY)
 generativeai.configure(api_key=GOOGLE_API_KEY)
-model = generativeai.GenerativeModel("gemini-2.0-flash-exp")
+model = generativeai.GenerativeModel("gemini-exp-1206")
 
 
 def format_timestamp(seconds):
@@ -74,66 +74,39 @@ def format_transcript(utterances):
 
 def enhance_transcript(chunk_text, audio_segment):
     """Enhance transcript using Gemini AI with both text and audio"""
-    prompt = """As a professional transcript editor, enhance this transcript for maximum readability while preserving accuracy. 
+    prompt = """You are an expert transcript editor. Your task is to enhance this transcript for maximum readability while maintaining the core message.
 
-Key Instructions:
-1. Correct transcription errors using the audio
-2. Format for readability:
-   - Remove filler words (e.g., "um", "like", "you know")
-   - Remove repetitions and false starts
-   - Break into clear paragraphs
-   - Add punctuation and quotation marks
-3. Maintain exact speaker names and timestamps
-4. Fix speaker attribution errors by:
-   - Using the audio to verify who is actually speaking
-   - Moving text to the correct speaker's section if misattributed
-   - Never combining multiple speakers' text into one section
-   - These often happen at the end of a speaker's section or the beginning of the next speaker's section. Be aware of this!
+IMPORTANT: Respond ONLY with the enhanced transcript. Do not include any explanations, headers, or phrases like "Here is the transcript."
 
-Example:
+Please:
+1. Fix speaker attribution errors, especially at segment boundaries. Watch for incomplete thoughts that were likely from the previous speaker.
 
-<Original>
-Dwarkesh 0:13:37
-Let's let's go to World War 1 and World War 2. So I would, you know, I, I had on the, um, the
-A couple of months ago, I interviewed the biographer of Churchill, Andrew Roberts, and we, as you discussed in your book, and he discusses, you know, Churchill was the sort of technological visionary, and that's the part of him that isn't talked about often. Um,
-Of you maybe talk a little bit about what Churchill did and how he saw the power of oil. I think Churchill was
+2. Optimize for readability over verbatim accuracy:
+   - Remove filler words (um, uh, like, you know)
+   - Eliminate false starts and repetitions
+   - Convert rambling sentences into clear, concise statements
+   - Break up run-on sentences into shorter ones
+   - Maintain natural conversation flow while improving clarity
 
-Daniel Yergin 0:14:04
-the first Lord of the Admiralty, and he saw that if you can convert all the naval ships at that time ran on coal, which means you had to have people on board shoveling coal, and it took a long time to get the coal on board, and if you switch to oil, you would have faster, uh, the ships would be faster, they wouldn't need to take the same time. They wouldn't need to carry the same people. And so he made
-The decision, obviously others like Admiral Jackie Fisher were pushing him to convert the Royal Navy to to oil and people saying this is treacherous because we'll depend upon oil from far away, from Persia, uh, rather than Welsh coal and uh he said, um, you know, he said, um this is the prize of the venture. That's where I got my title from originally it was going to be called The Prize of the Venture, because that's what he said and then I just made it the prize, but uh, he saw that.
-During, uh, uh, World War 2, World War 1, he promoted another uh uh military development, um, I'm forgetting what it was called initially, but it eventually became known as the tank. I mean, so he really did kind of constantly push technology.
-Why I don't know. I mean, he was actually, you know, was not, he was not educated, uh, as that he was educated and, you know, in the sort of classic I wrote so well, uh, but, uh, he understood technology and that you had a kind of constantly push for advantage.
+3. Format the output consistently:
+   - Keep the "Speaker X [timestamp]" format
+   - Use proper punctuation and capitalization
+   - Add paragraph breaks for topic changes
+- Preserve distinct speaker turns
 
-</Original>
+Example input:
+Speaker 1 00:01:15
+Um, yeah, so like, what I was thinking was, you know, when we look at the data, the data shows us that, uh, there's this pattern, this pattern that keeps coming up again and again in the results.
 
-<Enhanced>
-Dwarkesh Patel 00:13:37
+Example output:
+Speaker 1 00:01:15
+When we look at the data, we see a consistent pattern in the results.
 
-Let's go to World War I and World War II. A couple months ago, I interviewed the biographer of Churchill, Andrew Roberts. As you discuss in your book, he discusses that Churchill was this sort of technological visionary and how that's a side of him that isn't talked about often. Maybe talk a little bit about what Churchill did and how he saw the power of oil.
-
-Daniel Yergin 00:14:04 
-
-Churchill was the First Lord of the Admiralty. All the naval ships at that time ran on coal, which means you had to have people on board shoveling coal. It took a long time to get the coal on board. If you switched to oil, the ships would be faster. They wouldn't need to take the same time. They wouldn't need to carry the same people. 
-
-So he made the decision—obviously others like Admiral Jackie Fisher were pushing him—to convert the Royal Navy to oil. People were saying this is treacherous because we'll depend upon oil from far away, from Persia, rather than Welsh coal. He said, "This is the prize of the venture." That's where I got my title from. Originally it was going to be called "The Prize of the Venture" because that's what he said. Then I just made it The Prize. 
-
-During World War I, he promoted another military development. I'm forgetting what it was called initially, but it eventually became known as the tank. He really did constantly push technology. Why? I don't know. He was not educated like that. He was educated in the classic sense. That's why he wrote so well. But he understood technology and that you had to constantly push for advantage.
-
-</Enhanced>
-
-Notice how the enhanced version:
-1. Maintains exact speaker names and timestamps
-2. Removes filler words and repetitions
-3. Breaks long passages into logical paragraphs
-4. Adds proper punctuation and quotation marks
-6. Corrects speaker attribution errors.
-
-Output only the enhanced transcript, maintaining speaker names and timestamps exactly as given.
-
+Enhance the following transcript, starting directly with the speaker format:
 """
 
     response = model.generate_content(
-        [prompt, chunk_text, {"mime_type": "audio/mp3", "data": audio_segment.read()}]
+        [prompt, {"mime_type": "audio/mp3", "data": audio_segment.read()}]
     )
     return response.text
 
