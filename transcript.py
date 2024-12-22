@@ -50,8 +50,8 @@ def format_transcript(utterances):
             # Write out the previous section if it exists
             if current_text:
                 timestamp = format_timestamp(current_start)
-                # Normalize spacing: single newline after timestamp, text joined with single spaces
-                section = f"Speaker {current_speaker} {timestamp}\n{' '.join(current_text).strip()}"
+                # Add double line break after speaker/timestamp
+                section = f"Speaker {current_speaker + 1} {timestamp}\n\n{' '.join(current_text).strip()}"
                 formatted_sections.append(section)
                 current_text = []
 
@@ -64,9 +64,7 @@ def format_transcript(utterances):
     # Add the final section
     if current_text:
         timestamp = format_timestamp(current_start)
-        section = (
-            f"Speaker {current_speaker} {timestamp}\n{' '.join(current_text).strip()}"
-        )
+        section = f"Speaker {current_speaker + 1} {timestamp}\n\n{' '.join(current_text).strip()}"
         formatted_sections.append(section)
 
     return "\n\n".join(formatted_sections)
@@ -89,18 +87,24 @@ Please:
    - Maintain natural conversation flow while improving clarity
 
 3. Format the output consistently:
-   - Keep the "Speaker X [timestamp]" format
+   - Keep the "Speaker X 00:00:00" format (no brackets, no other formatting)
+   - Add TWO line breaks between speaker/timestamp and the text
    - Use proper punctuation and capitalization
    - Add paragraph breaks for topic changes
-- Preserve distinct speaker turns
+   - When you add paragraph breaks between the same speaker's remarks, no need to restate the speaker attribution
+   - Preserve distinct speaker turns
 
 Example input:
 Speaker 1 00:01:15
+
 Um, yeah, so like, what I was thinking was, you know, when we look at the data, the data shows us that, uh, there's this pattern, this pattern that keeps coming up again and again in the results.
 
 Example output:
 Speaker 1 00:01:15
+
 When we look at the data, we see a consistent pattern in the results.
+
+And when we examine the second part of the analysis, it reveals a completely different finding.
 
 Enhance the following transcript, starting directly with the speaker format:
 """
