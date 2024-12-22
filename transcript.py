@@ -73,6 +73,8 @@ def enhance_transcript(chunk_text, audio_segment):
 
 IMPORTANT: Respond ONLY with the enhanced transcript. Do not include any explanations, headers, or phrases like "Here is the transcript."
 
+Note: Below you'll find an auto-generated transcript that may help with speaker identification, but focus on creating your own high-quality transcript from the audio.
+
 Please:
 1. Fix speaker attribution errors, especially at segment boundaries. Watch for incomplete thoughts that were likely from the previous speaker.
 
@@ -92,12 +94,12 @@ Please:
    - Preserve distinct speaker turns
 
 Example input:
-Speaker 1 00:01:15
+Speaker A 00:01:15
 
 Um, yeah, so like, what I was thinking was, you know, when we look at the data, the data shows us that, uh, there's this pattern, this pattern that keeps coming up again and again in the results.
 
 Example output:
-Speaker 1 00:01:15
+Speaker A 00:01:15
 
 When we look at the data, we see a consistent pattern in the results.
 
