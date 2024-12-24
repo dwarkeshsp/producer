@@ -4,7 +4,7 @@ from pathlib import Path
 import json
 import hashlib
 import os
-from typing import List, Tuple
+from typing import List, Tuple, Iterator
 import assemblyai as aai
 from google import generativeai
 from pydub import AudioSegment
@@ -12,6 +12,7 @@ import asyncio
 import io
 from multiprocessing import Pool
 from functools import partial
+from itertools import groupby
 
 
 @dataclass
@@ -49,21 +50,43 @@ class Transcriber:
                 data = json.load(f)
                 if data["hash"] == self._get_file_hash(audio_path):
                     print("Using cached AssemblyAI transcript...")
-                    return [Utterance(**u) for u in data["utterances"]]
+                    # Create proper Utterance objects from cached data
+                    return [
+                        Utterance(
+                            speaker=u["speaker"],
+                            text=u["text"],
+                            start=u["start"],
+                            end=u["end"]
+                        )
+                        for u in data["utterances"]
+                    ]
 
         print("Getting new transcript from AssemblyAI...")
         config = aai.TranscriptionConfig(speaker_labels=True, language_code="en")
         transcript = aai.Transcriber().transcribe(str(audio_path), config=config)
         
         utterances = [
-            Utterance(speaker=u.speaker, text=u.text, start=u.start, end=u.end)
+            Utterance(
+                speaker=u.speaker,
+                text=u.text,
+                start=u.start,
+                end=u.end
+            )
             for u in transcript.utterances
         ]
         
-        # Cache the result
+        # Cache the raw utterance data
         cache_data = {
             "hash": self._get_file_hash(audio_path),
-            "utterances": [vars(u) for u in utterances],
+            "utterances": [
+                {
+                    "speaker": u.speaker,
+                    "text": u.text,
+                    "start": u.start,
+                    "end": u.end
+                }
+                for u in utterances
+            ]
         }
         with open(cache_file, "w") as f:
             json.dump(cache_data, f, indent=2)
@@ -115,49 +138,96 @@ class Enhancer:
         return results
 
 
-def format_chunk(utterances: List[Utterance]) -> str:
-    """Format utterances into readable text with timestamps"""
-    sections = []
-    current_speaker = None
-    current_texts = []
+@dataclass
+class SpeakerDialogue:
+    """Represents a continuous section of speech from a single speaker"""
+    speaker: str
+    utterances: List[Utterance]
     
-    for u in utterances:
-        if current_speaker != u.speaker:
-            if current_texts:
-                sections.append(f"Speaker {current_speaker} {utterances[len(sections)].timestamp}\n\n{''.join(current_texts)}")
-            current_speaker = u.speaker
-            current_texts = []
-        current_texts.append(u.text)
+    @property
+    def start(self) -> int:
+        """Start time of first utterance"""
+        return self.utterances[0].start
     
-    if current_texts:
-        sections.append(f"Speaker {current_speaker} {utterances[len(sections)].timestamp}\n\n{''.join(current_texts)}")
+    @property
+    def end(self) -> int:
+        """End time of last utterance"""
+        return self.utterances[-1].end
     
-    return "\n\n".join(sections)
+    @property
+    def timestamp(self) -> str:
+        """Format start time as HH:MM:SS"""
+        return self.utterances[0].timestamp
+    
+    def format(self) -> str:
+        """Format this dialogue as text with newlines between utterances"""
+        texts = [u.text + "\n\n" for u in self.utterances]  # Add two newlines after each utterance
+        combined_text = ''.join(texts).rstrip()  # Remove trailing whitespace at the end
+        return f"Speaker {self.speaker} {self.timestamp}\n\n{combined_text}"
+
+
+def group_utterances_by_speaker(utterances: List[Utterance]) -> Iterator[SpeakerDialogue]:
+    """Group consecutive utterances by the same speaker"""
+    for speaker, group in groupby(utterances, key=lambda u: u.speaker):
+        yield SpeakerDialogue(speaker=speaker, utterances=list(group))
+
+
+def estimate_tokens(text: str, chars_per_token: int = 4) -> int:
+    """
+    Estimate number of tokens in text
+    Args:
+        text: The text to estimate tokens for
+        chars_per_token: Estimated characters per token (default 4)
+    """
+    return (len(text) + chars_per_token - 1) // chars_per_token
+
+
+def chunk_dialogues(
+    dialogues: Iterator[SpeakerDialogue], 
+    max_tokens: int = 2000, 
+    chars_per_token: int = 4
+) -> List[List[SpeakerDialogue]]:
+    """
+    Split dialogues into chunks that fit within token limit
+    Args:
+        dialogues: Iterator of SpeakerDialogues
+        max_tokens: Maximum tokens per chunk
+        chars_per_token: Estimated characters per token (default 4)
+    """
+    chunks = []
+    current_chunk = []
+    current_text = ""
+    
+    for dialogue in dialogues:
+        # Format this dialogue
+        formatted = dialogue.format()
+        
+        # If adding this dialogue would exceed token limit, start new chunk
+        new_text = current_text + "\n\n" + formatted if current_text else formatted
+        if current_chunk and estimate_tokens(new_text, chars_per_token) > max_tokens:
+            chunks.append(current_chunk)
+            current_chunk = [dialogue]
+            current_text = formatted
+        else:
+            current_chunk.append(dialogue)
+            current_text = new_text
+    
+    if current_chunk:
+        chunks.append(current_chunk)
+    
+    return chunks
+
+
+def format_chunk(dialogues: List[SpeakerDialogue]) -> str:
+    """Format a chunk of dialogues into readable text"""
+    return "\n\n".join(dialogue.format() for dialogue in dialogues)
 
 
 def prepare_audio_chunks(audio_path: Path, utterances: List[Utterance]) -> List[Tuple[str, io.BytesIO]]:
     """Prepare audio chunks and their corresponding text"""
-    def chunk_utterances(utterances: List[Utterance], max_tokens: int = 8000) -> List[List[Utterance]]:
-        chunks = []
-        current = []
-        text_length = 0
-        
-        for u in utterances:
-            new_length = text_length + len(u.text)
-            if current and new_length > max_tokens:
-                chunks.append(current)
-                current = [u]
-                text_length = len(u.text)
-            else:
-                current.append(u)
-                text_length = new_length
-                
-        if current:
-            chunks.append(current)
-        return chunks
-
-    # Split utterances into chunks
-    chunks = chunk_utterances(utterances)
+    # Group utterances by speaker and split into chunks
+    dialogues = group_utterances_by_speaker(utterances)
+    chunks = chunk_dialogues(dialogues)
     print(f"Preparing {len(chunks)} audio segments...")
     
     # Load audio once
@@ -172,7 +242,7 @@ def prepare_audio_chunks(audio_path: Path, utterances: List[Utterance]) -> List[
         # Use lower quality MP3 for faster processing
         segment.export(buffer, format="mp3", parameters=["-q:a", "9"])
         prepared.append((format_chunk(chunk), buffer))
-        
+    
     return prepared
 
 
@@ -194,7 +264,8 @@ def main():
         utterances = transcriber.get_transcript(audio_path)
         
         # Save original transcript
-        original = format_chunk(utterances)
+        dialogues = list(group_utterances_by_speaker(utterances))  # Convert iterator to list
+        original = format_chunk(dialogues)
         (out_dir / "autogenerated-transcript.md").write_text(original)
         
         # Enhance transcript
