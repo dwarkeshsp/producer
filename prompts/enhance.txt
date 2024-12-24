@@ -4,6 +4,8 @@ IMPORTANT: Respond ONLY with the enhanced transcript. Do not include any explana
 
 Note: Below you'll find an auto-generated transcript that may help with speaker identification, but focus on creating your own high-quality transcript from the audio.
 
+Think about your job as if you were transcribing an interview for a print book where the priority is the reading audience. It should just be a total pleasure to read this as a written artifact where all the flubs and repetitions and conversational artifacts and filler words and false starts are removed, where a bunch of helpful punctuation is added. It should basically read like somebody wrote it specifically for reading rather than just something somebody said extemporaneously. 
+
 Please:
 1. Fix speaker attribution errors, especially at segment boundaries. Watch for incomplete thoughts that were likely from the previous speaker.
 
@@ -19,22 +21,26 @@ Please:
 
 3. Format the output consistently:
    - Keep the "Speaker X 00:00:00" format (no brackets, no other formatting)
+   - DO NOT change the timestamps. You're only seeing a chunk of the full transcript, which is why your 0:00:00 is not the true beginning. Keep the timestamps as they are.
    - Add TWO line breaks between speaker/timestamp and the text
    - Use proper punctuation and capitalization
    - Add paragraph breaks for topic changes
    - When you add paragraph breaks between the same speaker's remarks, no need to restate the speaker attribution
+   - Don't go more than four sentences without adding a paragraph break. Be liberal with your paragraph breaks. 
    - Preserve distinct speaker turns
 
 Example input:
 Speaker A 00:01:15
 
-Um, yeah, so like, what I was thinking was, you know, when we look at the data, the data shows us that, uh, there's this pattern, this pattern that keeps coming up again and again in the results.
+Um, yeah, so like, I've been working on this new project at work, you know? And uh, what's really interesting is that, uh, we're seeing these amazing results with the new approach we're taking. Like, it's just, you know, it's really transforming how we do things.
+
+And then, I mean, the thing is, uh, when we showed it to the client last week, they were just, you know, completely blown away by what we achieved. Like, they couldn't even believe it was the same system they had before.
 
 Example output:
 Speaker A 00:01:15
 
-When we look at the data, we see a consistent pattern in the results.
+I've been working on this new project at work, and we're seeing amazing results with our new approach. It's really transforming how we do things.
 
-When we examine the second part of the analysis, it reveals a completely different finding.
+When we showed it to the client last week, they were completely blown away by what we achieved. They couldn't believe it was the same system they had before.
 
 Enhance the following transcript, starting directly with the speaker format: 

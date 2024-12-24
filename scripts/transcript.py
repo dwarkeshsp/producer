@@ -5,7 +5,6 @@ import json
 import hashlib
 import os
 from typing import List, Optional
-
 import assemblyai as aai
 from google import generativeai
 from pydub import AudioSegment
@@ -19,17 +18,18 @@ class Utterance:
 
     speaker: str
     text: str
-    start: int  # milliseconds
-    end: int  # milliseconds
+    start: int  # timestamp in ms from AssemblyAI
+    end: int    # timestamp in ms from AssemblyAI
 
     @property
     def timestamp(self) -> str:
         """Format start time as HH:MM:SS"""
-        seconds = self.start // 1000
-        h = seconds // 3600
-        m = (seconds % 3600) // 60
-        s = seconds % 60
-        return f"{h:02d}:{m:02d}:{s:02d}"
+        seconds = int(self.start // 1000)  # Convert ms to seconds
+        hours = seconds // 3600
+        minutes = (seconds % 3600) // 60
+        seconds = seconds % 60
+        
+        return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 
 class Transcriber:
@@ -108,67 +108,96 @@ class Enhancer:
 
     async def enhance_chunks(self, chunks: List[tuple[str, io.BytesIO]]) -> List[str]:
         """Enhance multiple transcript chunks in parallel"""
-        tasks = [self._enhance_chunk(text, audio) for text, audio in chunks]
-
-        print(f"Enhancing {len(tasks)} chunks in parallel...")
-        results = []
-        for i, future in enumerate(asyncio.as_completed(tasks), 1):
+        print(f"Enhancing {len(chunks)} chunks...")
+        
+        async def process_chunk(chunk, index):
+            text, audio = chunk
             try:
-                result = await future
-                results.append(result)
-                print(f"Completed chunk {i}/{len(tasks)}")
+                result = await self._enhance_chunk_with_retry(text, audio)
+                print(f"Completed chunk {index + 1}/{len(chunks)}")
+                if result == text:  # Check if output matches input exactly
+                    print("WARNING: Enhanced text matches input exactly!")
+                return result
             except Exception as e:
-                print(f"Error enhancing chunk {i}: {e}")
-                results.append(None)
+                print(f"Error in chunk {index + 1}: {e}")
+                return None
 
+        # Create all tasks at once and wait for them all to complete
+        tasks = [process_chunk(chunk, i) for i, chunk in enumerate(chunks)]
+        results = await asyncio.gather(*tasks)
+        
+        # Filter out failed chunks
         return [r for r in results if r is not None]
+
+    async def _enhance_chunk_with_retry(self, text: str, audio: io.BytesIO, max_retries: int = 3) -> Optional[str]:
+        """Enhance a single chunk with retries"""
+        for attempt in range(max_retries):
+            try:
+                return await self._enhance_chunk(text, audio)
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    print(f"Failed after {max_retries} attempts: {e}")
+                    return None
+                print(f"Attempt {attempt + 1} failed: {e}. Retrying...")
+                await asyncio.sleep(2 ** attempt)  # Exponential backoff
 
     async def _enhance_chunk(self, text: str, audio: io.BytesIO) -> str:
         """Enhance a single chunk"""
         audio.seek(0)
+        
         response = await self.model.generate_content_async(
             [self.prompt, text, {"mime_type": "audio/mp3", "data": audio.read()}]
         )
+        
         return response.text
 
 
-def prepare_audio_chunks(
-    audio_path: Path, utterances: List[Utterance]
-) -> List[tuple[str, io.BytesIO]]:
+def prepare_audio_chunks(audio_path: Path, utterances: List[Utterance]) -> List[tuple[str, io.BytesIO]]:
     """Prepare audio chunks and their corresponding text"""
-    chunks = []
-    current = []
-    current_text = []
+    def chunk_utterances(utterances: List[Utterance]) -> List[List[Utterance]]:
+        chunks = []
+        current = []
+        text_length = 0
+        
+        for u in utterances:
+            # Check if adding this utterance would exceed token limit
+            new_length = text_length + len(u.text)
+            if not current or new_length > 8000:  # ~2000 tokens
+                if current:
+                    chunks.append(current)
+                current = [u]
+                text_length = len(u.text)
+            else:
+                current.append(u)
+                text_length = new_length
+                
+        if current:
+            chunks.append(current)
+            
+        return chunks
 
-    for u in utterances:
-        # Start new chunk if this is first utterance or would exceed token limit
-        if not current or len(" ".join(current_text)) > 8000:  # ~2000 tokens
-            if current:
-                chunks.append((current[0].start, current[-1].end, current))
-            current = [u]
-            current_text = [u.text]
-        else:
-            current.append(u)
-            current_text.append(u.text)
-
-    # Add final chunk
-    if current:
-        chunks.append((current[0].start, current[-1].end, current))
-
-    # Prepare audio segments and format text
+    # Split utterances into chunks
+    chunks = chunk_utterances(utterances)
+    
+    # Load audio file once
     audio = AudioSegment.from_file(audio_path)
-    prepared = []
-
+    
+    # Prepare segments
     print(f"Preparing {len(chunks)} audio segments...")
-    for start_ms, end_ms, utterances in chunks:
-        # Get audio segment
+    prepared = []
+    for chunk in chunks:
+        # Extract audio segment
+        start_ms = chunk[0].start
+        end_ms = chunk[-1].end
         segment = audio[start_ms:end_ms]
+        
+        # Export to buffer
         buffer = io.BytesIO()
         segment.export(buffer, format="mp3")
-
+        
         # Format text
-        text = format_transcript(utterances)
-
+        text = format_transcript(chunk)
+        
         prepared.append((text, buffer))
 
     return prepared
@@ -178,60 +207,71 @@ def format_transcript(utterances: List[Utterance]) -> str:
     """Format utterances into readable text"""
     sections = []
     current_speaker = None
-    current_text = []
-
+    current_texts = []
+    
     for u in utterances:
-        if current_speaker != u.speaker and current_text:
-            sections.append(
-                f"Speaker {current_speaker} {utterances[0].timestamp}\n\n{' '.join(current_text)}"
-            )
-            current_text = []
-        current_speaker = u.speaker
-        current_text.append(u.text)
-
-    if current_text:
-        sections.append(
-            f"Speaker {current_speaker} {utterances[0].timestamp}\n\n{' '.join(current_text)}"
-        )
-
+        # When speaker changes, output the accumulated text
+        if current_speaker != u.speaker:
+            if current_texts:  # Don't output empty sections
+                sections.append(f"Speaker {current_speaker} {utterances[len(sections)].timestamp}\n\n{''.join(current_texts)}")
+            current_speaker = u.speaker
+            current_texts = []
+        current_texts.append(u.text)
+    
+    # Don't forget the last section
+    if current_texts:
+        sections.append(f"Speaker {current_speaker} {utterances[len(sections)].timestamp}\n\n{''.join(current_texts)}")
+    
     return "\n\n".join(sections)
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("audio_file", help="Audio file to transcribe")
-    args = parser.parse_args()
-
-    audio_path = Path(args.audio_file)
-    if not audio_path.exists():
-        print(f"Error: File not found: {audio_path}")
-        return
-
-    # Initialize services
-    transcriber = Transcriber(os.getenv("ASSEMBLYAI_API_KEY"))
-    enhancer = Enhancer(os.getenv("GOOGLE_API_KEY"))
-
-    # Create output directory
-    out_dir = Path("output/transcripts")
-    out_dir.mkdir(parents=True, exist_ok=True)
-
-    # Get transcript
-    utterances = transcriber.get_transcript(audio_path)
-
-    # Save original transcript
-    original = format_transcript(utterances)
-    (out_dir / "autogenerated-transcript.md").write_text(original)
-
-    # Prepare and enhance chunks
-    chunks = prepare_audio_chunks(audio_path, utterances)
-    enhanced = asyncio.run(enhancer.enhance_chunks(chunks))
-
-    # Save enhanced transcript
-    (out_dir / "transcript.md").write_text("\n".join(enhanced))
-
-    print("\nTranscripts saved to:")
-    print("- output/transcripts/autogenerated-transcript.md")
-    print("- output/transcripts/transcript.md")
+    def setup_args() -> Path:
+        parser = argparse.ArgumentParser()
+        parser.add_argument("audio_file", help="Audio file to transcribe")
+        args = parser.parse_args()
+        
+        audio_path = Path(args.audio_file)
+        if not audio_path.exists():
+            raise FileNotFoundError(f"File not found: {audio_path}")
+        return audio_path
+    
+    def setup_output_dir() -> Path:
+        out_dir = Path("output/transcripts")
+        out_dir.mkdir(parents=True, exist_ok=True)
+        return out_dir
+    
+    try:
+        # Setup
+        audio_path = setup_args()
+        out_dir = setup_output_dir()
+        
+        # Initialize services
+        transcriber = Transcriber(os.getenv("ASSEMBLYAI_API_KEY"))
+        enhancer = Enhancer(os.getenv("GOOGLE_API_KEY"))
+        
+        # Process
+        utterances = transcriber.get_transcript(audio_path)
+        chunks = prepare_audio_chunks(audio_path, utterances)
+        
+        # Save original transcript
+        original = format_transcript(utterances)
+        (out_dir / "autogenerated-transcript.md").write_text(original)
+        
+        # Enhance and save
+        enhanced = asyncio.run(enhancer.enhance_chunks(chunks))
+        merged_transcript = "\n\n".join(chunk.strip() for chunk in enhanced)
+        (out_dir / "transcript.md").write_text(merged_transcript)
+        
+        print("\nTranscripts saved to:")
+        print("- output/transcripts/autogenerated-transcript.md")
+        print("- output/transcripts/transcript.md")
+        
+    except Exception as e:
+        print(f"Error: {e}")
+        return 1
+    
+    return 0
 
 
 if __name__ == "__main__":
