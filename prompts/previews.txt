@@ -1,0 +1,48 @@
+You are a podcast producer tasked with selecting 5-10 short, engaging clips for a preview section at the start of the episode. These clips should:
+
+- Be attention-grabbing and make listeners want to hear more
+- Show the guest super animated, or show guest and host laughing together
+- Each be roughly 5-15 seconds long
+- Represent interesting moments, revelations, or powerful statements
+- Work well together to give a taste of the episode's best content
+
+Please listen to the audio and suggest 5-10 clips that would make great preview material. For each suggestion:
+1. Note the timestamp where the clip occurs
+2. Quote the relevant dialogue
+3. Briefly explain why this would make a good preview clip
+
+Here are some examples of effective preview clips from past episodes:
+
+Example 1 - David Reich episode:
+- "There's just extinction after extinction of the Neanderthal groups, of the Denisovan groups, and of the modern human groups. But the last one standing is one of the modern human groups."
+- "It's not even obvious that non-Africans today are modern humans. Maybe they're Neanderthals who became modernized by waves and waves of admixture."
+- "Farmers who were just on the verge of encountering people from the steppe, a huge fraction of them have Black Death. [...] It's killing a scarily large fraction of the population."
+- "A lot of people I know dropped off the paper. They just didn't want to be associated with it because it was so weird and they just thought it might be wrong, but it's stood up as far as I can tell."
+- "70,000 years ago there are half a dozen different human species [...] And then [...] this group, [...] initially like 1000 to 10,000 people, [...] explodes all across the world."
+- "I think there's been an assumption where Africa's been at the center of everything. [...] Models that are considered to be standard dogma are now low probability."
+
+Example 2 - Dylan Patel and Jon episode:
+- "Liang Mong Song is a nut. [...] He's like, 'we will make Samsung into this monster.' [...] He does not care about people. He does not care about business. [...] He wants to take it to the limit. That's the only thing."
+- "There's no fucking way you can pay for the scale of clusters that are being planned to be built next year for OpenAI unless they raise like 50 to 100 billion dollars. [...] Hold on, hold on. We've already lost Jon. [...] We've already accepted that GPT-5 will be good? Hello? [...] You gotta, you know? [...] Life is so much more fun when you just are delusionally… [...] We're just ripping bong hits, are we? [...] We're not even close to the [...] dot-com bubble. [...] Why wouldn't this one be bigger? [...] We're gonna rip, baby. Rip that bong, baby! [...] You could freeze AI for another two decades!"
+- "If you are Xi Jinping and scale-pilled, you must now centralize the compute resources, right? [...] They could have a bigger model than any of the labs next year."
+
+Example 3 - Daniel Yergin episode:
+- "There was an oil war within World War II. When Hitler invaded Russia, he was not only going for Moscow, he was also going for the oil fields of Baku. [...] The kamikaze pilots who would fly their planes into the aircraft carrier. One big reason they were doing that was to save fuel."
+- "No one would be happier to see a ban on US shale production than Vladimir Putin. [...] I mentioned the word 'shale' and he erupted and kind of said, 'It's barbaric, it's terrible.' And he got really angry. [...] I don't think he never imagined that if he cut off the gas to Europe, that Europe could survive."
+- "There's one projection that 10% of US electricity by 2030 [...] will be going to data centers."
+- "A war that began with cavalry ended up with tanks and airplanes and trucks. [...] The Allies floated to victory on a sea of oil."
+
+Example 4 - Sarah Paine episode:
+- "And this notion that Stalin personally is responsible for these millions of deaths… There are millions of people pulling millions of triggers for all these deaths."
+- "Initially, Hitler did incredibly well. I mean, his Blitzkrieg, incredible. [...] If he had quit right there [...] he would have gotten away with it and probably be considered a brilliant leader by Germans."
+- "Putin, [...] he's made a pivotal error. He has no back down plan. He only has a double down plan."
+- "For the People's Republic to take Taiwan, I presume it's going to begin with an artillery barrage. I presume that's going to be leveling Taiwanese cities, right? We've watched how it goes in Ukraine. I can't imagine the Chinese being less brutal. [...] You're going to say that's okay?"
+
+Example 5 - Leopold Aschenbrenner episode:
+- "What will be at stake is not just cool products but whether liberal democracy survives, whether the CCP survives. What the world order for the next century will be."
+- "The CCP is going to have an all-out effort to infiltrate American AI labs. [...] Billions of dollars, thousands of people [...] The CCP is going to try to outbuild us. [...] People don't realize how intense state-level espionage can be."
+- "When we have literal superintelligence on our cluster [...] and they can Stuxnet the Chinese data centers [...] you really think it'll be a private company? And the government won't be like, 'oh, my God, what is going on?'"
+- "I do think it is incredibly important that these clusters are in the United States. [...] Would you do the Manhattan Project in the UAE?"
+- "2023 was the moment for me where it went from 'AGI as a theoretical abstract thing' [...] to 'I see it, I feel it.' [...] I can see the cluster where it's trained on, the rough combination of algorithms, the people, how it's happening. [...] Most of the people who feel it are right here."
+
+Please analyze the provided audio and suggest preview clips in a similar format. 
