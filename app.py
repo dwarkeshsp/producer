@@ -29,10 +29,11 @@ class TranscriptProcessor:
 
             # Define content generation requests
             requests = [
+                ContentRequest("previews", max_tokens=8192),
                 ContentRequest("clips", max_tokens=8192),
                 ContentRequest("description"),
-                ContentRequest("timestamps", temperature=0.4),
-                ContentRequest("titles_and_thumbnails", temperature=0.7),
+                ContentRequest("timestamps"),
+                ContentRequest("titles_and_thumbnails"),
             ]
 
             # Generate all content concurrently
@@ -42,12 +43,12 @@ class TranscriptProcessor:
             return tuple(results)
 
         except Exception as e:
-            return (f"Error processing input: {str(e)}",) * 4
+            return (f"Error processing input: {str(e)}",) * 5
 
     def update_prompts(self, *values) -> str:
         """Update the current session's prompts."""
         self.generator.current_prompts.update(zip(
-            ["clips", "description", "timestamps", "titles_and_thumbnails"],
+            ["previews", "clips", "description", "timestamps", "titles_and_thumbnails"],
             values
         ))
         return "Prompts updated for this session!"
@@ -63,7 +64,7 @@ def create_interface():
             submit_btn = gr.Button("Generate Content")
             outputs = [
                 gr.Textbox(label=label, lines=10, interactive=False)
-                for label in ["Twitter Clips", "Twitter Description", "Timestamps", "Title & Thumbnail Suggestions"]
+                for label in ["Preview Clips", "Twitter Clips", "Twitter Description", "Timestamps", "Title & Thumbnail Suggestions"]
             ]
             
             async def process_wrapper(text):
@@ -83,6 +84,9 @@ def create_interface():
             )
 
             prompt_inputs = [
+                gr.Textbox(
+                    label="Preview Clips Prompt", lines=10, value=processor.generator.current_prompts["previews"]
+                ),
                 gr.Textbox(
                     label="Clips Prompt", lines=10, value=processor.generator.current_prompts["clips"]
                 ),

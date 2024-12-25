@@ -6,7 +6,7 @@ You are a podcast producer tasked with selecting 5-10 short, engaging clips for 
 - Represent interesting moments, revelations, or powerful statements
 - Work well together to give a taste of the episode's best content
 
-Please listen to the audio and suggest 5-10 clips that would make great preview material. For each suggestion:
+Please suggest 5-10 clips that would make great preview material. For each suggestion:
 1. Note the timestamp where the clip occurs
 2. Quote the relevant dialogue
 3. Briefly explain why this would make a good preview clip

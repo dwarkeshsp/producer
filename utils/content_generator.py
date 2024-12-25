@@ -13,7 +13,7 @@ client = anthropic.Anthropic()
 class ContentRequest:
     prompt_key: str
     max_tokens: int = 2000
-    temperature: float = 0.6
+    temperature: float = 1.0
 
 class ContentGenerator:
     def __init__(self):
@@ -23,7 +23,7 @@ class ContentGenerator:
         """Load default prompts from files."""
         return {
             key: Path(f"prompts/{key}.txt").read_text()
-            for key in ["clips", "description", "timestamps", "titles_and_thumbnails"]
+            for key in ["previews", "clips", "description", "timestamps", "titles_and_thumbnails"]
         }
 
     def _load_examples(self, filename: str, columns: List[str]) -> str:
