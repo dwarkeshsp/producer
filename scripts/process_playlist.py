@@ -26,7 +26,7 @@ async def process_video(video_id: str, generator: ContentGenerator, retry_count:
             return ""
             
         # Generate suggestions
-        request = ContentRequest("titles_and_thumbnails", temperature=0.7)
+        request = ContentRequest("titles_and_thumbnails")
         result = await generator.generate_content(request, transcript)
         return f"Video ID: {video_id}\n{result}\n{'='*50}\n"
         
