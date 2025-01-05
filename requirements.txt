@@ -7,3 +7,7 @@ youtube-transcript-api
 pydub 
 assemblyai
 pytube
+PyPDF2
+EbookLib
+beautifulsoup4
+python-dotenv
