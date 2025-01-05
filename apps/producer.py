@@ -1,8 +1,8 @@
 import gradio as gr
 import asyncio
 from pathlib import Path
-from utils.content_generator import ContentGenerator, ContentRequest
-from utils.youtube_utils import get_transcript, extract_video_id
+from ..utils.content_generator import ContentGenerator, ContentRequest
+from ..utils.youtube_utils import get_transcript, extract_video_id
 
 class TranscriptProcessor:
     def __init__(self):
@@ -125,4 +125,4 @@ def create_interface():
     return app
 
 if __name__ == "__main__":
-    create_interface().launch()
+    create_interface().launch() 
