@@ -2,3 +2,6 @@ Create an engaging episode description tweet (280 chars max) that:
 1. Highlights compelling aspects
 2. Includes topic areas and handles
 3. Ends with "Links below" or "Enjoy!" 
+
+Here are examples of successful episode descriptions:
+{description_examples} 

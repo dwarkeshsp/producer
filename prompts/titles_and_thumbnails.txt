@@ -13,6 +13,9 @@ Thumbnail: 2-4 ALL CAPS words that amplify the intrigue
 - Create intellectual curiosity without sensationalism
 - Make the viewer wonder "What's the story here?"
 
+Here are examples of successful title-thumbnail combinations from previous episodes:
+{title_examples}
+
 Example:
 Title: "David Reich – How One Small Tribe Conquered the World 70,000 Years Ago"
 Thumbnail: "LAST HUMANS STANDING"

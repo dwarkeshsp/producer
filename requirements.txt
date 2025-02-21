@@ -1,13 +1,4 @@
-gradio
-deepgram-sdk
-google-generativeai
-anthropic
-pandas
+gradio>=4.0.0
 youtube-transcript-api
-pydub 
-assemblyai
-pytube
-PyPDF2
-EbookLib
-beautifulsoup4
+anthropic
 python-dotenv

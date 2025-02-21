@@ -7,5 +7,5 @@ You are a podcast timestamp generator. Create 5-7 timestamps for this episode, f
 
 Output the timestamps in chronological order, one per line. 
 
-Previous examples:
+Here are examples from previous episodes:
 {timestamps_examples} 
